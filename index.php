@@ -83,23 +83,36 @@ $keluarHariIni = $dataKeluar['total'] ?? 0;
 
       <aside class="aside">
         <h2>Notifikasi (Low Stock)</h2>
-        <p style="font-size: 0.9em; margin-bottom: 10px;">Barang dengan stok &le; <?php echo $batasAman; ?>:</p>
-        <ul>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">
+            Stok Barang &le; <?php echo $batasAman; ?> Unit. Segera lakukan restock!
+        </p>
+        
+        <div class="notif-container">
           <?php 
           if (mysqli_num_rows($queryLow) > 0) {
               while($row = mysqli_fetch_assoc($queryLow)) {
-                  echo '<li>';
-                  echo '<a href="adminBarang.php" style="color: #e74c3c; font-weight: bold;">';
-                  echo '[!] ' . htmlspecialchars($row['nama_barang']);
-                  echo ' <br><span style="font-size:0.8em; color: #555;">(Sisa: ' . $row['stok'] . ' ' . $row['satuan'] . ')</span>';
+                  // Link menuju halaman edit barang tersebut
+                  echo '<a href="adminBarang.php?op=edit&id='.$row['kode_barang'].'" class="notif-item">';
+                  
+                  // Ikon Warning
+                  echo '<div class="notif-icon">⚠️</div>';
+                  
+                  // Detail Barang
+                  echo '<div class="notif-details">';
+                  echo '<span class="notif-title">' . htmlspecialchars($row['nama_barang']) . '</span>';
+                  echo '<span class="notif-stock">Sisa: ' . $row['stok'] . ' ' . $row['satuan'] . '</span>';
+                  echo '</div>';
+                  
                   echo '</a>';
-                  echo '</li>';
               }
           } else {
-              echo '<li><a href="#" style="color: green;">Semua stok aman.</a></li>';
+              // Tampilan jika semua aman
+              echo '<div class="notif-safe">';
+              echo '<span>✅</span> Semua stok barang aman.';
+              echo '</div>';
           }
           ?>
-        </ul>
+        </div>
       </aside>
     </div>
 

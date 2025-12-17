@@ -495,3 +495,84 @@ tr:last-child td { border-bottom: none; }
   /* Logo Mobile (Sisi Kanan) */
   .mobile-logo-container img { width: 160px !important; background: var(--primary-gradient) !important; padding: 15px !important; border-radius: 12px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 }
+
+/* =========================================
+   7. NOTIFICATION SIDEBAR STYLES (NEW)
+   ========================================= */
+
+/* Container Notifikasi */
+.notif-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Jarak antar kartu notifikasi */
+}
+
+/* Kartu Item Notifikasi */
+.notif-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  background: var(--white);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  /* Aksen merah di kiri menandakan 'Warning' */
+  border-left: 5px solid var(--danger-color); 
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+.notif-item:hover {
+  transform: translateX(5px); /* Efek geser sedikit saat hover */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  background-color: #fff5f5; /* Background kemerahan sangat muda */
+}
+
+/* Icon Peringatan */
+.notif-icon {
+  font-size: 1.2rem;
+  margin-right: 12px;
+  color: var(--danger-color);
+  display: flex;
+  align-items: center;
+}
+
+/* Detail Teks */
+.notif-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.notif-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.notif-stock {
+  font-size: 0.8rem;
+  color: var(--danger-color);
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.1); /* Badge merah transparan */
+  padding: 2px 8px;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+/* State Aman (Hijau) */
+.notif-safe {
+  padding: 15px;
+  text-align: center;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  color: #047857;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
