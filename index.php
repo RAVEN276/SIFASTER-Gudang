@@ -6,39 +6,36 @@ if (!isset($_SESSION['user_logged_in']) || $_SESSION['user_logged_in'] !== true)
 }
 include 'koneksi.php';
 
-// --- Logika Dashboard & Notifikasi ---
-
-// 1. Hitung Total Stok (Semua Barang)
+// --- Logika Dashboard ---
 $queryTotal = mysqli_query($koneksi, "SELECT SUM(stok) as total_stok FROM barang");
 $dataTotal = mysqli_fetch_assoc($queryTotal);
 $totalStok = $dataTotal['total_stok'] ?? 0;
 
-// 2. Ambil Barang Low Stock (Misal batas aman <= 10)
 $batasAman = 10;
 $queryLow = mysqli_query($koneksi, "SELECT * FROM barang WHERE stok <= $batasAman ORDER BY stok ASC");
 
-// 3. Hitung Barang Masuk Hari Ini
 $queryMasuk = mysqli_query($koneksi, "SELECT SUM(dt.qty) as total FROM transaksi t JOIN detail_transaksi dt ON t.no_transaksi = dt.no_transaksi WHERE t.tipe = 'Masuk' AND DATE(t.tanggal) = CURDATE()");
 $dataMasuk = mysqli_fetch_assoc($queryMasuk);
 $masukHariIni = $dataMasuk['total'] ?? 0;
 
-// 4. Hitung Barang Keluar Hari Ini
 $queryKeluar = mysqli_query($koneksi, "SELECT SUM(dt.qty) as total FROM transaksi t JOIN detail_transaksi dt ON t.no_transaksi = dt.no_transaksi WHERE t.tipe = 'Keluar' AND DATE(t.tanggal) = CURDATE()");
 $dataKeluar = mysqli_fetch_assoc($queryKeluar);
 $keluarHariIni = $dataKeluar['total'] ?? 0;
-
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <title>SIFASTER Gudang</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <header class="header">
-      <div class="logo">SIFASTER</div>
+      <div class="logo">
+          <img src="logo_clear.png" alt="SIFASTER" class="header-logo-img">
+      </div>
       <div class="header-text">
         <h1>Sistem Informasi Gudang</h1>
         <p>Manufaktur Alat Tulis Kantor (ATK)</p>
@@ -59,7 +56,7 @@ $keluarHariIni = $dataKeluar['total'] ?? 0;
         </ul>
       </nav>
 
-      <article class="article">
+      <main class="article">
         <h2>Dashboard Ringkasan</h2>
         <section class="headline">
           <h3>Total Stok Barang</h3>
@@ -82,7 +79,7 @@ $keluarHariIni = $dataKeluar['total'] ?? 0;
           </p>
           <p>Ringkasan transaksi pengeluaran ke Produksi & Sales.</p>
         </section>
-      </article>
+      </main>
 
       <aside class="aside">
         <h2>Notifikasi (Low Stock)</h2>

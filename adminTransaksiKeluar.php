@@ -2,171 +2,76 @@
 session_start();
 include 'koneksi.php';
 
-// Cek Login
 if (!isset($_SESSION['user_logged_in']) || $_SESSION['user_logged_in'] !== true) {
     header("Location: login.php");
     exit;
 }
 
-// Ambil ID Admin
 $username = $_SESSION['username'];
 $q_admin = mysqli_query($koneksi, "SELECT id_admin FROM admin WHERE username = '$username'");
 $d_admin = mysqli_fetch_array($q_admin);
 $id_admin_login = $d_admin['id_admin'];
 
-// Inisialisasi Variabel
-$no_transaksi = "";
-$tanggal      = date('Y-m-d H:i:s');
-$kode_barang  = "";
-$qty          = "";
-$sukses       = "";
-$error        = "";
-$op           = "";
+$no_transaksi = ""; $tanggal = date('Y-m-d\TH:i'); $kode_barang = ""; $qty = "";
+$sukses = ""; $error = ""; $op = "";
+if (isset($_GET['op'])) { $op = $_GET['op']; }
 
-if (isset($_GET['op'])) {
-    $op = $_GET['op'];
-}
-
-// --- LOGIKA DELETE (VOID TRANSAKSI KELUAR) ---
 if ($op == 'delete') {
-    $id = $_GET['id'];
-    
-    // 1. Ambil data lama
+    $id = mysqli_real_escape_string($koneksi, $_GET['id']);
     $q_cek = mysqli_query($koneksi, "SELECT * FROM detail_transaksi WHERE no_transaksi = '$id'");
     $r_cek = mysqli_fetch_array($q_cek);
     
     if ($r_cek) {
         $kode_brg_old = $r_cek['kode_barang'];
         $qty_old      = $r_cek['qty'];
-        
-        // 2. Kembalikan Stok Barang (+) karena pembatalan barang keluar
         mysqli_query($koneksi, "UPDATE barang SET stok = stok + $qty_old WHERE kode_barang = '$kode_brg_old'");
-        
-        // 3. Hapus Data
         mysqli_query($koneksi, "DELETE FROM detail_transaksi WHERE no_transaksi = '$id'");
         mysqli_query($koneksi, "DELETE FROM transaksi WHERE no_transaksi = '$id'");
-        
         $sukses = "Transaksi Keluar dibatalkan. Stok dikembalikan.";
-    } else {
-        $error = "Data transaksi tidak ditemukan.";
-    }
+    } else { $error = "Data transaksi tidak ditemukan."; }
 }
 
-// --- LOGIKA SIMPAN (INSERT) ---
 if (isset($_POST['simpan'])) {
-    $kode_barang = $_POST['kode_barang'];
-    $qty         = $_POST['qty'];
-    $tanggal     = $_POST['tanggal'];
-    
-    // Generate No Transaksi: TK-YYYYMMDD-HIS
+    $kode_barang = mysqli_real_escape_string($koneksi, $_POST['kode_barang']);
+    $qty         = mysqli_real_escape_string($koneksi, $_POST['qty']);
+    $tanggal     = mysqli_real_escape_string($koneksi, $_POST['tanggal']);
     $no_transaksi = "TK-" . date('YmdHis');
 
     if ($kode_barang && $qty) {
-        // Cek Ketersediaan Stok Dulu!
         $q_stok = mysqli_query($koneksi, "SELECT stok FROM barang WHERE kode_barang = '$kode_barang'");
         $d_stok = mysqli_fetch_array($q_stok);
         $stok_saat_ini = $d_stok['stok'];
 
         if ($stok_saat_ini >= $qty) {
-            // 1. Insert Header
             $sql1 = "INSERT INTO transaksi (no_transaksi, tanggal, tipe, id_admin) VALUES ('$no_transaksi', '$tanggal', 'Keluar', '$id_admin_login')";
             $q1   = mysqli_query($koneksi, $sql1);
-
             if ($q1) {
-                // 2. Insert Detail
                 $sql2 = "INSERT INTO detail_transaksi (no_transaksi, kode_barang, qty) VALUES ('$no_transaksi', '$kode_barang', '$qty')";
                 $q2   = mysqli_query($koneksi, $sql2);
-
-                // 3. Update Stok Barang (-)
                 $sql3 = "UPDATE barang SET stok = stok - $qty WHERE kode_barang = '$kode_barang'";
                 $q3   = mysqli_query($koneksi, $sql3);
-
                 if ($q2 && $q3) {
                     $sukses = "Transaksi Keluar berhasil. Stok berkurang.";
                     $kode_barang = ""; $qty = "";
-                } else {
-                    $error = "Gagal menyimpan detail.";
-                }
-            } else {
-                $error = "Gagal menyimpan transaksi.";
-            }
-        } else {
-            $error = "Stok Tidak Mencukupi! Stok saat ini: " . $stok_saat_ini;
-        }
-    } else {
-        $error = "Silakan lengkapi data.";
-    }
+                } else { $error = "Gagal menyimpan detail."; }
+            } else { $error = "Gagal menyimpan transaksi."; }
+        } else { $error = "Stok Tidak Mencukupi! Stok saat ini: " . $stok_saat_ini; }
+    } else { $error = "Silakan lengkapi data."; }
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Transaksi Keluar - SIFASTER</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Transaksi Keluar - SIFASTER</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Layout Khusus CRUD (Konsisten dengan adminBarang.php) */
-        .crud-wrapper {
-            display: flex;
-            gap: 20px;
-            width: 100%;
-        }
-        .form-section {
-            flex: 1;
-            background: #fff;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            height: fit-content;
-        }
-        .table-section {
-            flex: 2;
-            background: #fff;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        /* Form Styles */
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--primary-color); }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .btn-submit {
-            background-color: #d9534f; /* Merah untuk Keluar */
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-        }
-        .btn-submit:hover { background-color: #c9302c; }
-
-        /* Table Styles */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background-color: var(--primary-color); color: white; }
-        tr:hover { background-color: #f1f1f1; }
-        
-        /* Alerts */
-        .alert { padding: 15px; margin-bottom: 20px; border-radius: 4px; }
-        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        
-        .btn-delete { background-color: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.8rem;}
-    </style>
 </head>
-<body>
+<body class="crud-page">
     <div class="container">
         <header class="header">
-            <div class="logo">SIFASTER</div>
+            <div class="logo">
+                <img src="logo_clear.png" alt="SIFASTER" class="header-logo-img">
+            </div>
             <div class="header-text">
                 <h1>Transaksi Barang Keluar (Outbound)</h1>
                 <p>Pengiriman ke Produksi / Sales</p>
@@ -187,18 +92,17 @@ if (isset($_POST['simpan'])) {
                 </ul>
             </nav>
 
-            <div style="width: 100%;">
+            <main class="article">
                 <?php if ($error) { ?> <div class="alert alert-danger"><?php echo $error ?></div> <?php } ?>
                 <?php if ($sukses) { ?> <div class="alert alert-success"><?php echo $sukses ?></div> <?php } ?>
 
                 <div class="crud-wrapper">
-                    <!-- FORM INPUT -->
                     <div class="form-section">
-                        <h3 style="margin-bottom: 15px; border-bottom: 2px solid var(--accent-color); padding-bottom: 5px;">Input Barang Keluar</h3>
+                        <h3>Input Barang Keluar</h3>
                         <form action="" method="POST">
                             <div class="form-group">
                                 <label>Tanggal</label>
-                                <input type="datetime-local" name="tanggal" value="<?php echo date('Y-m-d\TH:i'); ?>" required>
+                                <input type="datetime-local" name="tanggal" value="<?php echo $tanggal; ?>" required>
                             </div>
                             <div class="form-group">
                                 <label>Pilih Barang</label>
@@ -216,62 +120,55 @@ if (isset($_POST['simpan'])) {
                                 <label>Jumlah Keluar (Qty)</label>
                                 <input type="number" name="qty" min="1" placeholder="Contoh: 5" required>
                             </div>
-                            <button type="submit" name="simpan" class="btn-submit">Proses Keluar</button>
+                            <button type="submit" name="simpan" class="btn-submit" style="background-color: #d9534f;">Proses Keluar</button>
                         </form>
                     </div>
 
-                    <!-- TABEL DATA -->
                     <div class="table-section">
-                        <h3 style="margin-bottom: 15px; border-bottom: 2px solid var(--accent-color); padding-bottom: 5px;">Riwayat Barang Keluar</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>No Transaksi</th>
-                                    <th>Tanggal</th>
-                                    <th>Barang</th>
-                                    <th>Qty Keluar</th>
-                                    <th>Admin</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                $sql_view = "SELECT t.no_transaksi, t.tanggal, b.nama_barang, dt.qty, a.username 
-                                             FROM transaksi t
-                                             JOIN detail_transaksi dt ON t.no_transaksi = dt.no_transaksi
-                                             JOIN barang b ON dt.kode_barang = b.kode_barang
-                                             JOIN admin a ON t.id_admin = a.id_admin
-                                             WHERE t.tipe = 'Keluar'
-                                             ORDER BY t.tanggal DESC LIMIT 20";
-                                $q_view = mysqli_query($koneksi, $sql_view);
-                                while ($row = mysqli_fetch_array($q_view)) {
-                                ?>
+                        <h3>Riwayat Barang Keluar</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
                                     <tr>
-                                        <td><?php echo $row['no_transaksi'] ?></td>
-                                        <td><?php echo $row['tanggal'] ?></td>
-                                        <td><?php echo $row['nama_barang'] ?></td>
-                                        <td style="color: red; font-weight: bold;">-<?php echo $row['qty'] ?></td>
-                                        <td><?php echo $row['username'] ?></td>
-                                        <td>
-                                            <a href="adminTransaksiKeluar.php?op=delete&id=<?php echo $row['no_transaksi'] ?>" onclick="return confirm('Batalkan transaksi ini? Stok akan dikembalikan.')" class="btn-delete">Batal</a>
-                                        </td>
+                                        <th>No Transaksi</th>
+                                        <th>Tanggal</th>
+                                        <th>Barang</th>
+                                        <th>Qty Keluar</th>
+                                        <th>Admin</th>
+                                        <th>Aksi</th>
                                     </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $sql_view = "SELECT t.no_transaksi, t.tanggal, b.nama_barang, dt.qty, a.username 
+                                                 FROM transaksi t
+                                                 JOIN detail_transaksi dt ON t.no_transaksi = dt.no_transaksi
+                                                 JOIN barang b ON dt.kode_barang = b.kode_barang
+                                                 JOIN admin a ON t.id_admin = a.id_admin
+                                                 WHERE t.tipe = 'Keluar'
+                                                 ORDER BY t.tanggal DESC LIMIT 20";
+                                    $q_view = mysqli_query($koneksi, $sql_view);
+                                    while ($row = mysqli_fetch_array($q_view)) {
+                                    ?>
+                                        <tr>
+                                            <td><?php echo $row['no_transaksi'] ?></td>
+                                            <td><?php echo $row['tanggal'] ?></td>
+                                            <td><?php echo htmlspecialchars($row['nama_barang']) ?></td>
+                                            <td style="color: red; font-weight: bold;">-<?php echo $row['qty'] ?></td>
+                                            <td><?php echo htmlspecialchars($row['username']) ?></td>
+                                            <td>
+                                                <a href="adminTransaksiKeluar.php?op=delete&id=<?php echo $row['no_transaksi'] ?>" onclick="return confirm('Batalkan transaksi ini? Stok akan dikembalikan.')" class="btn-delete" style="font-size:0.8rem;">Batal</a>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
-
-        <footer class="footer">
-            <div class="social">
-                <span>Support IT</span> | <span>Panduan Pengguna</span>
-            </div>
-            <div class="footer-text">
-                <span>&copy; 2025 SIFASTER - Sistem Informasi Cepat & Akurat</span>
-            </div>
-        </footer>
+        <footer class="footer"><div class="footer-text"><span>&copy; 2025 SIFASTER</span></div></footer>
     </div>
 </body>
 </html>
