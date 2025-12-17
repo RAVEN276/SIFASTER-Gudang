@@ -59,6 +59,7 @@ if (isset($_POST['simpan'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Transaksi Masuk - SIFASTER</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="crud-page">
     <div class="container">
@@ -79,8 +80,8 @@ if (isset($_POST['simpan'])) {
                 <ul>
                     <li><a href="index.php">Dashboard</a></li>
                     <li><a href="adminBarang.php">Master Data & Stok</a></li>
-                    <li><a href="adminTransaksiMasuk.php" class="active">Transaksi Masuk (Inbound)</a></li>
-                    <li><a href="adminTransaksiKeluar.php">Transaksi Keluar (Outbound)</a></li>
+                    <li><a href="adminTransaksiMasuk.php" class="active">Transaksi Masuk</a></li>
+                    <li><a href="adminTransaksiKeluar.php">Transaksi Keluar</a></li>
                     <li><a href="laporan.php">Laporan & Monitoring</a></li>
                     <li><a href="logout.php">Logout</a></li>
                 </ul>
@@ -162,7 +163,22 @@ if (isset($_POST['simpan'])) {
                 </div>
             </main>
         </div>
-        <footer class="footer"><div class="footer-text"><span>&copy; 2025 SIFASTER</span></div></footer>
+        
+        <footer class="footer">
+            <div class="footer-left">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-whatsapp"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+            <div class="footer-center">
+                Copyright &copy; 2025. All Rights Reserved
+            </div>
+            <div class="footer-right">
+                <div class="footer-brand">FIZARS WEB</div>
+                <div class="footer-slogan">Try to be strong</div>
+            </div>
+        </footer>
     </div>
 </body>
 </html>

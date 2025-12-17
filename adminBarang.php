@@ -71,6 +71,7 @@ if (isset($_POST['simpan'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Data Barang - SIFASTER</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="crud-page">
     <div class="container">
@@ -91,8 +92,8 @@ if (isset($_POST['simpan'])) {
                 <ul>
                     <li><a href="index.php">Dashboard</a></li>
                     <li><a href="adminBarang.php" class="active">Master Data & Stok</a></li>
-                    <li><a href="adminTransaksiMasuk.php">Transaksi Masuk (Inbound)</a></li>
-                    <li><a href="adminTransaksiKeluar.php">Transaksi Keluar (Outbound)</a></li>
+                    <li><a href="adminTransaksiMasuk.php">Transaksi Masuk</a></li>
+                    <li><a href="adminTransaksiKeluar.php">Transaksi Keluar</a></li>
                     <li><a href="laporan.php">Laporan & Monitoring</a></li>
                     <li><a href="logout.php">Logout</a></li>
                 </ul>
@@ -138,10 +139,12 @@ if (isset($_POST['simpan'])) {
                                 <input type="text" name="lokasi_rak" value="<?php echo htmlspecialchars($lokasi_rak) ?>" required placeholder="Contoh: Rak A-1">
                             </div>
                             
-                            <button type="submit" name="simpan" class="btn-submit"><?php echo ($op == 'edit') ? 'Update Data' : 'Simpan Data'; ?></button>
-                            <?php if ($op == 'edit') { ?>
-                                <a href="adminBarang.php" class="btn-reset" style="display:block; text-align:center; margin-top:10px; text-decoration:none; color:#666;">Batal Edit</a>
-                            <?php } ?>
+                            <div class="button-stack">
+                                <button type="submit" name="simpan" class="btn-submit"><?php echo ($op == 'edit') ? 'Update Data' : 'Simpan Data'; ?></button>
+                                <?php if ($op == 'edit') { ?>
+                                    <a href="adminBarang.php" class="btn-edit" style="display:block; text-align:center; background:#eee; color:#333;">Batal Edit</a>
+                                <?php } ?>
+                            </div>
                         </form>
                     </div>
 
@@ -181,8 +184,8 @@ if (isset($_POST['simpan'])) {
                                             </td>
                                             <td><?php echo htmlspecialchars($r2['lokasi_rak']) ?></td>
                                             <td>
-                                                <a href="adminBarang.php?op=edit&id=<?php echo $id ?>" class="btn-action btn-edit">Edit</a>
-                                                <a href="adminBarang.php?op=delete&id=<?php echo $id ?>" onclick="return confirm('Yakin mau delete data?')" class="btn-action btn-delete">Delete</a>
+                                                <a href="adminBarang.php?op=edit&id=<?php echo $id ?>" class="btn-edit">Edit</a>
+                                                <a href="adminBarang.php?op=delete&id=<?php echo $id ?>" onclick="return confirm('Yakin mau delete data?')" class="btn-delete">Del</a>
                                             </td>
                                         </tr>
                                     <?php } ?>
@@ -193,7 +196,22 @@ if (isset($_POST['simpan'])) {
                 </div>
             </main>
         </div>
-        <footer class="footer"><div class="footer-text"><span>&copy; 2025 SIFASTER</span></div></footer>
+        
+        <footer class="footer">
+            <div class="footer-left">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-whatsapp"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+            <div class="footer-center">
+                Copyright &copy; 2025. All Rights Reserved
+            </div>
+            <div class="footer-right">
+                <div class="footer-brand">FIZARS WEB</div>
+                <div class="footer-slogan">Try to be strong</div>
+            </div>
+        </footer>
     </div>
 </body>
 </html>
