@@ -105,15 +105,61 @@ if (isset($_POST['simpan'])) {
     <title>Transaksi Keluar - SIFASTER</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .crud-container { display: flex; gap: 20px; }
-        .form-card { flex: 1; background: #fff; padding: 20px; border: 1px solid #ccc; }
-        .table-card { flex: 2; background: #fff; padding: 20px; border: 1px solid #ccc; }
+        /* Layout Khusus CRUD (Konsisten dengan adminBarang.php) */
+        .crud-wrapper {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
+        .form-section {
+            flex: 1;
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: fit-content;
+        }
+        .table-section {
+            flex: 2;
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        /* Form Styles */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--primary-color); }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn-submit {
+            background-color: #d9534f; /* Merah untuk Keluar */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        .btn-submit:hover { background-color: #c9302c; }
+
+        /* Table Styles */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #e2e6ea; }
-        .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
-        .alert-success { background-color: #d4edda; color: #155724; }
-        .alert-danger { background-color: #f8d7da; color: #721c24; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background-color: var(--primary-color); color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        
+        /* Alerts */
+        .alert { padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
         .btn-delete { background-color: #dc3545; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 0.8rem;}
     </style>
 </head>
@@ -124,27 +170,31 @@ if (isset($_POST['simpan'])) {
             <div class="header-text">
                 <h1>Transaksi Barang Keluar (Outbound)</h1>
                 <p>Pengiriman ke Produksi / Sales</p>
+                <p class="location">User: <?php echo htmlspecialchars($_SESSION['username']); ?> (Admin)</p>
             </div>
         </header>
 
         <div class="content-wrapper">
-            <nav class="nav" style="width: 200px;">
+            <nav class="nav">
+                <h2>Menu Utama</h2>
                 <ul>
-                    <li><a href="index.php">&laquo; Dashboard</a></li>
-                    <li><a href="adminBarang.php">Data Barang</a></li>
-                    <li><a href="adminTransaksiMasuk.php">Barang Masuk</a></li>
-                    <li><a href="adminTransaksiKeluar.php" class="active">Barang Keluar</a></li>
+                    <li><a href="index.php">Dashboard</a></li>
+                    <li><a href="adminBarang.php">Master Data & Stok</a></li>
+                    <li><a href="adminTransaksiMasuk.php">Transaksi Masuk (Inbound)</a></li>
+                    <li><a href="adminTransaksiKeluar.php" class="active">Transaksi Keluar (Outbound)</a></li>
+                    <li><a href="laporan.php">Laporan & Monitoring</a></li>
+                    <li><a href="logout.php">Logout</a></li>
                 </ul>
             </nav>
 
-            <div style="flex: 1;">
+            <div style="width: 100%;">
                 <?php if ($error) { ?> <div class="alert alert-danger"><?php echo $error ?></div> <?php } ?>
                 <?php if ($sukses) { ?> <div class="alert alert-success"><?php echo $sukses ?></div> <?php } ?>
 
-                <div class="crud-container">
+                <div class="crud-wrapper">
                     <!-- FORM INPUT -->
-                    <div class="form-card">
-                        <h3>Input Barang Keluar</h3>
+                    <div class="form-section">
+                        <h3 style="margin-bottom: 15px; border-bottom: 2px solid var(--accent-color); padding-bottom: 5px;">Input Barang Keluar</h3>
                         <form action="" method="POST">
                             <div class="form-group">
                                 <label>Tanggal</label>
@@ -166,13 +216,13 @@ if (isset($_POST['simpan'])) {
                                 <label>Jumlah Keluar (Qty)</label>
                                 <input type="number" name="qty" min="1" placeholder="Contoh: 5" required>
                             </div>
-                            <button type="submit" name="simpan" class="btn-login" style="background-color: #d9534f;">Proses Keluar</button>
+                            <button type="submit" name="simpan" class="btn-submit">Proses Keluar</button>
                         </form>
                     </div>
 
                     <!-- TABEL DATA -->
-                    <div class="table-card">
-                        <h3>Riwayat Barang Keluar</h3>
+                    <div class="table-section">
+                        <h3 style="margin-bottom: 15px; border-bottom: 2px solid var(--accent-color); padding-bottom: 5px;">Riwayat Barang Keluar</h3>
                         <table>
                             <thead>
                                 <tr>
@@ -213,6 +263,15 @@ if (isset($_POST['simpan'])) {
                 </div>
             </div>
         </div>
+
+        <footer class="footer">
+            <div class="social">
+                <span>Support IT</span> | <span>Panduan Pengguna</span>
+            </div>
+            <div class="footer-text">
+                <span>&copy; 2025 SIFASTER - Sistem Informasi Cepat & Akurat</span>
+            </div>
+        </footer>
     </div>
 </body>
 </html>

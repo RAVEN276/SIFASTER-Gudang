@@ -27,11 +27,11 @@ body {
 /* LAYOUT */
 .container {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
   background: var(--white);
   min-height: 100vh;
-  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  box-shadow: none;
   display: flex;
   flex-direction: column;
 }

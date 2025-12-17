@@ -17,6 +17,16 @@ $totalStok = $dataTotal['total_stok'] ?? 0;
 $batasAman = 10;
 $queryLow = mysqli_query($koneksi, "SELECT * FROM barang WHERE stok <= $batasAman ORDER BY stok ASC");
 
+// 3. Hitung Barang Masuk Hari Ini
+$queryMasuk = mysqli_query($koneksi, "SELECT SUM(dt.qty) as total FROM transaksi t JOIN detail_transaksi dt ON t.no_transaksi = dt.no_transaksi WHERE t.tipe = 'Masuk' AND DATE(t.tanggal) = CURDATE()");
+$dataMasuk = mysqli_fetch_assoc($queryMasuk);
+$masukHariIni = $dataMasuk['total'] ?? 0;
+
+// 4. Hitung Barang Keluar Hari Ini
+$queryKeluar = mysqli_query($koneksi, "SELECT SUM(dt.qty) as total FROM transaksi t JOIN detail_transaksi dt ON t.no_transaksi = dt.no_transaksi WHERE t.tipe = 'Keluar' AND DATE(t.tanggal) = CURDATE()");
+$dataKeluar = mysqli_fetch_assoc($queryKeluar);
+$keluarHariIni = $dataKeluar['total'] ?? 0;
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -44,7 +54,7 @@ $queryLow = mysqli_query($koneksi, "SELECT * FROM barang WHERE stok <= $batasAma
           <li><a href="adminBarang.php">Master Data & Stok</a></li>
           <li><a href="adminTransaksiMasuk.php">Transaksi Masuk (Inbound)</a></li>
           <li><a href="adminTransaksiKeluar.php">Transaksi Keluar (Outbound)</a></li>
-          <li><a href="#">Laporan & Monitoring</a></li>
+          <li><a href="laporan.php">Laporan & Monitoring</a></li>
           <li><a href="logout.php">Logout</a></li>
         </ul>
       </nav>
@@ -60,10 +70,16 @@ $queryLow = mysqli_query($koneksi, "SELECT * FROM barang WHERE stok <= $batasAma
         </section>
         <section class="headline">
           <h3>Barang Masuk Hari Ini</h3>
+          <p style="font-size: 2em; font-weight: bold; color: #27ae60; margin: 10px 0;">
+            <?php echo $masukHariIni; ?> Unit
+          </p>
           <p>Ringkasan transaksi penerimaan dari Supplier & Produksi.</p>
         </section>
         <section class="headline">
           <h3>Barang Keluar Hari Ini</h3>
+          <p style="font-size: 2em; font-weight: bold; color: #e67e22; margin: 10px 0;">
+            <?php echo $keluarHariIni; ?> Unit
+          </p>
           <p>Ringkasan transaksi pengeluaran ke Produksi & Sales.</p>
         </section>
       </article>

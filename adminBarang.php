@@ -32,7 +32,7 @@ if ($op == 'delete') {
     if ($q1) {
         $sukses = "Berhasil hapus data";
     } else {
-        $error  = "Gagal melakukan delete data";
+        $error  = "Gagal hapus data (Mungkin barang sudah digunakan di transaksi). Error: " . mysqli_error($koneksi);
     }
 }
 
@@ -101,52 +101,78 @@ if (isset($_POST['simpan'])) {
     <title>Kelola Data Barang - SIFASTER</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Tambahan CSS khusus halaman CRUD */
-        .crud-container {
+        /* Layout Khusus CRUD */
+        .crud-wrapper {
             display: flex;
             gap: 20px;
+            width: 100%;
         }
-        .form-card {
+        .form-section {
             flex: 1;
             background: #fff;
             padding: 20px;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            height: fit-content;
         }
-        .table-card {
+        .table-section {
             flex: 2;
             background: #fff;
             padding: 20px;
-            border: 1px solid #ccc;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
             border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+            border-radius: 5px;
         }
-        th {
-            background-color: #f2f2f2;
-        }
-        .alert {
+        
+        /* Form Styles */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--primary-color); }
+        .form-group input, .form-group select {
+            width: 100%;
             padding: 10px;
-            margin-bottom: 15px;
+            border: 1px solid #ccc;
             border-radius: 4px;
+            font-size: 14px;
         }
-        .alert-success { background-color: #d4edda; color: #155724; }
-        .alert-danger { background-color: #f8d7da; color: #721c24; }
-        .btn-action {
-            text-decoration: none;
-            padding: 5px 10px;
+        .btn-submit {
+            background-color: var(--primary-color);
             color: white;
-            border-radius: 3px;
-            font-size: 0.8rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
         }
-        .btn-edit { background-color: #ffc107; color: #000; }
-        .btn-delete { background-color: #dc3545; }
+        .btn-submit:hover { background-color: var(--secondary-color); }
+        .btn-reset {
+            background-color: #95a5a6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        /* Table Styles */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background-color: var(--primary-color); color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        
+        /* Action Buttons */
+        .btn-action { padding: 5px 10px; border-radius: 3px; text-decoration: none; color: white; font-size: 0.85em; margin-right: 5px; }
+        .btn-edit { background-color: var(--accent-color); }
+        .btn-delete { background-color: var(--danger-color); }
+        
+        /* Alerts */
+        .alert { padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
@@ -154,22 +180,26 @@ if (isset($_POST['simpan'])) {
         <header class="header">
             <div class="logo">SIFASTER</div>
             <div class="header-text">
-                <h1>Kelola Master Data Barang</h1>
-                <p>Admin: <?php echo $_SESSION['username']; ?></p>
+                <h1>Master Data Barang</h1>
+                <p>Kelola SKU, Kategori, dan Stok Awal</p>
+                <p class="location">User: <?php echo htmlspecialchars($_SESSION['username']); ?> (Admin)</p>
             </div>
         </header>
 
         <div class="content-wrapper">
-            <!-- Navigasi Sederhana -->
-            <nav class="nav" style="width: 200px;">
+            <nav class="nav">
+                <h2>Menu Utama</h2>
                 <ul>
-                    <li><a href="index.php">&laquo; Kembali ke Dashboard</a></li>
-                    <li><a href="adminBarang.php" class="active">Data Barang</a></li>
-                    <!-- Nanti tambah adminTransaksi.php dll -->
+                    <li><a href="index.php">Dashboard</a></li>
+                    <li><a href="adminBarang.php" class="active">Master Data & Stok</a></li>
+                    <li><a href="adminTransaksiMasuk.php">Transaksi Masuk (Inbound)</a></li>
+                    <li><a href="adminTransaksiKeluar.php">Transaksi Keluar (Outbound)</a></li>
+                    <li><a href="laporan.php">Laporan & Monitoring</a></li>
+                    <li><a href="logout.php">Logout</a></li>
                 </ul>
             </nav>
 
-            <div style="flex: 1;">
+            <div style="width: 100%;">
                 <?php if ($error) { ?>
                     <div class="alert alert-danger"><?php echo $error ?></div>
                 <?php } ?>
@@ -177,60 +207,67 @@ if (isset($_POST['simpan'])) {
                     <div class="alert alert-success"><?php echo $sukses ?></div>
                 <?php } ?>
 
-                <div class="crud-container">
-                    <!-- FORM INPUT / EDIT -->
-                    <div class="form-card">
-                        <h3>Form Data Barang</h3>
+                <div class="crud-wrapper">
+                    <!-- FORM SECTION -->
+                    <div class="form-section">
+                        <h3 style="margin-bottom: 15px; border-bottom: 2px solid var(--accent-color); padding-bottom: 5px;">
+                            <?php echo ($op == 'edit') ? 'Edit Barang' : 'Tambah Barang Baru'; ?>
+                        </h3>
                         <form action="" method="POST">
                             <div class="form-group">
-                                <label>Kode Barang</label>
-                                <input type="text" name="kode_barang" value="<?php echo $kode_barang ?>" <?php echo ($op == 'edit') ? 'readonly' : ''; ?> required>
+                                <label>Kode Barang (SKU)</label>
+                                <input type="text" name="kode_barang" value="<?php echo $kode_barang ?>" <?php echo ($op == 'edit') ? 'readonly style="background:#eee;"' : ''; ?> required placeholder="Contoh: B001">
                             </div>
                             <div class="form-group">
                                 <label>Nama Barang</label>
-                                <input type="text" name="nama_barang" value="<?php echo $nama_barang ?>" required>
+                                <input type="text" name="nama_barang" value="<?php echo $nama_barang ?>" required placeholder="Contoh: Kertas HVS">
                             </div>
                             <div class="form-group">
                                 <label>Kategori</label>
-                                <select name="kategori">
-                                    <option value="">- Pilih -</option>
+                                <select name="kategori" required>
+                                    <option value="">- Pilih Kategori -</option>
                                     <option value="Bahan Baku" <?php if ($kategori == 'Bahan Baku') echo 'selected' ?>>Bahan Baku</option>
                                     <option value="Barang Jadi" <?php if ($kategori == 'Barang Jadi') echo 'selected' ?>>Barang Jadi</option>
                                     <option value="ATK" <?php if ($kategori == 'ATK') echo 'selected' ?>>ATK</option>
+                                    <option value="Lainnya" <?php if ($kategori == 'Lainnya') echo 'selected' ?>>Lainnya</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Satuan</label>
-                                <input type="text" name="satuan" value="<?php echo $satuan ?>" placeholder="Pcs/Kg/Rim" required>
+                                <input type="text" name="satuan" value="<?php echo $satuan ?>" required placeholder="Pcs, Rim, Kg, Liter">
                             </div>
                             <div class="form-group">
-                                <label>Stok Awal</label>
+                                <label>Stok Awal / Saat Ini</label>
                                 <input type="number" name="stok" value="<?php echo $stok ?>" required>
+                                <small style="color: #666;">*Gunakan Transaksi Masuk/Keluar untuk update rutin.</small>
                             </div>
                             <div class="form-group">
                                 <label>Lokasi Rak</label>
-                                <input type="text" name="lokasi_rak" value="<?php echo $lokasi_rak ?>" placeholder="Contoh: A-01" required>
+                                <input type="text" name="lokasi_rak" value="<?php echo $lokasi_rak ?>" required placeholder="Contoh: Rak A-1">
                             </div>
-                            <button type="submit" name="simpan" class="btn-login">Simpan Data</button>
-                            <?php if($op == 'edit'): ?>
-                                <a href="adminBarang.php" style="display:block; text-align:center; margin-top:10px;">Batal Edit</a>
-                            <?php endif; ?>
+                            
+                            <button type="submit" name="simpan" class="btn-submit">
+                                <?php echo ($op == 'edit') ? 'Update Data' : 'Simpan Data'; ?>
+                            </button>
+                            <?php if ($op == 'edit') { ?>
+                                <a href="adminBarang.php" class="btn-reset">Batal Edit</a>
+                            <?php } ?>
                         </form>
                     </div>
 
-                    <!-- TABEL DATA -->
-                    <div class="table-card">
-                        <h3>Daftar Barang</h3>
+                    <!-- TABLE SECTION -->
+                    <div class="table-section">
+                        <h3 style="margin-bottom: 15px; border-bottom: 2px solid var(--accent-color); padding-bottom: 5px;">Daftar Barang</h3>
                         <table>
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Kode</th>
-                                    <th>Nama</th>
+                                    <th>Nama Barang</th>
                                     <th>Kategori</th>
                                     <th>Stok</th>
-                                    <th>Rak</th>
-                                    <th>Aksi</th>
+                                    <th>Lokasi</th>
+                                    <th style="width: 150px;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -239,23 +276,31 @@ if (isset($_POST['simpan'])) {
                                 $q2     = mysqli_query($koneksi, $sql2);
                                 $urut   = 1;
                                 while ($r2 = mysqli_fetch_array($q2)) {
-                                    $kode   = $r2['kode_barang'];
-                                    $nama   = $r2['nama_barang'];
-                                    $kat    = $r2['kategori'];
-                                    $stok   = $r2['stok'];
-                                    $sat    = $r2['satuan'];
-                                    $rak    = $r2['lokasi_rak'];
+                                    $id         = $r2['kode_barang'];
+                                    $nama       = $r2['nama_barang'];
+                                    $kat        = $r2['kategori'];
+                                    $sat        = $r2['satuan'];
+                                    $stk        = $r2['stok'];
+                                    $lok        = $r2['lokasi_rak'];
                                 ?>
                                     <tr>
                                         <td><?php echo $urut++ ?></td>
-                                        <td><?php echo $kode ?></td>
+                                        <td style="font-weight:bold;"><?php echo $id ?></td>
                                         <td><?php echo $nama ?></td>
                                         <td><?php echo $kat ?></td>
-                                        <td><?php echo $stok . ' ' . $sat ?></td>
-                                        <td><?php echo $rak ?></td>
                                         <td>
-                                            <a href="adminBarang.php?op=edit&id=<?php echo $kode ?>" class="btn-action btn-edit">Edit</a>
-                                            <a href="adminBarang.php?op=delete&id=<?php echo $kode ?>" onclick="return confirm('Yakin mau delete data?')" class="btn-action btn-delete">Delete</a>
+                                            <?php 
+                                            if($stk <= 10) {
+                                                echo "<span style='color:red; font-weight:bold;'>$stk $sat</span>";
+                                            } else {
+                                                echo "$stk $sat";
+                                            }
+                                            ?>
+                                        </td>
+                                        <td><?php echo $lok ?></td>
+                                        <td>
+                                            <a href="adminBarang.php?op=edit&id=<?php echo $id ?>" class="btn-action btn-edit">Edit</a>
+                                            <a href="adminBarang.php?op=delete&id=<?php echo $id ?>" onclick="return confirm('Yakin mau delete data?')" class="btn-action btn-delete">Delete</a>
                                         </td>
                                     </tr>
                                 <?php
@@ -267,10 +312,13 @@ if (isset($_POST['simpan'])) {
                 </div>
             </div>
         </div>
-        
+
         <footer class="footer">
+            <div class="social">
+                <span>Support IT</span> | <span>Panduan Pengguna</span>
+            </div>
             <div class="footer-text">
-                <span>&copy; 2025 SIFASTER</span>
+                <span>&copy; 2025 SIFASTER - Sistem Informasi Cepat & Akurat</span>
             </div>
         </footer>
     </div>
