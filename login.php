@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'koneksi.php'; // Koneksi database
 
 if (isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in'] === true) {
     header("Location: index.php");
@@ -7,19 +8,26 @@ if (isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in'] === true) 
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = mysqli_real_escape_string($koneksi, $_POST['username']);
+    $password = md5($_POST['password']); // Menggunakan MD5 sesuai database
 
-    // Validasi Login Sederhana (Prototype)
-    if (!empty($username) && !empty($password)) {
+    // Query cek user di tabel users
+    $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
+    $result = mysqli_query($koneksi, $query);
+
+    if (mysqli_num_rows($result) === 1) {
+        $row = mysqli_fetch_assoc($result);
+        
+        // Set Session
         $_SESSION['user_logged_in'] = true;
-        $_SESSION['username'] = $username;
-        $_SESSION['role'] = 'Admin';
+        $_SESSION['id_user'] = $row['id_user'];
+        $_SESSION['username'] = $row['username'];
+        $_SESSION['role'] = $row['role']; // Admin, Produksi, Purchasing, Sales
         
         header("Location: index.php");
         exit;
     } else {
-        $error = "Username dan Password harus diisi!";
+        $error = "Username atau Password salah!";
     }
 }
 ?>
@@ -30,25 +38,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - SIFASTER</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    /* CSS Tambahan Khusus untuk Logo (Override Ukuran) */
-    
-    /* 1. Logo Utama (Desktop - Sisi Kiri) */
+  <style>/
     .img-logo {
-        width: 250px; /* Ukuran Besar untuk Desktop */
+        width: 250px;
         height: auto;
         object-fit: contain;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
-    
-    /* 2. Container Logo Mobile */
+
     .mobile-logo-container {
         display: none; /* Default sembunyi di desktop */
         text-align: center;
         margin-bottom: 20px;
     }
-    
-    /* 3. Gambar Logo Mobile */
+
     .img-logo-mobile {
         width: 160px; /* Ukuran Besar untuk HP */
         background: var(--primary-color);

@@ -8,6 +8,12 @@ if (!isset($_SESSION['user_logged_in']) || $_SESSION['user_logged_in'] !== true)
     exit;
 }
 
+// Cek Role (Hanya Admin yang boleh akses Master Data)
+if ($_SESSION['role'] !== 'Admin') {
+    echo "<script>alert('Akses Ditolak! Halaman ini hanya untuk Admin.'); window.location.href='index.php';</script>";
+    exit;
+}
+
 $kode_barang = ""; $nama_barang = ""; $kategori = ""; $satuan = ""; $stok = 0; $lokasi_rak = "";
 $sukses = ""; $error = ""; $op = ""; 
 
@@ -63,41 +69,16 @@ if (isset($_POST['simpan'])) {
         }
     } else { $error = "Silakan masukkan semua data"; }
 }
-?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Data Barang - SIFASTER</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="crud-page">
-    <div class="container">
-        <header class="header">
-            <div class="logo">
-                <img src="logo_clear.png" alt="SIFASTER" class="header-logo-img">
-            </div>
-            <div class="header-text">
-                <h1>Master Data Barang</h1>
-                <p>Kelola SKU, Kategori, dan Stok Awal</p>
-                <p class="location">User: <?php echo htmlspecialchars($_SESSION['username']); ?> (Admin)</p>
-            </div>
-        </header>
 
-        <div class="content-wrapper">
-            <nav class="nav">
-                <h2>Menu Utama</h2>
-                <ul>
-                    <li><a href="index.php">Dashboard</a></li>
-                    <li><a href="adminBarang.php" class="active">Master Data & Stok</a></li>
-                    <li><a href="adminTransaksiMasuk.php">Transaksi Masuk</a></li>
-                    <li><a href="adminTransaksiKeluar.php">Transaksi Keluar</a></li>
-                    <li><a href="laporan.php">Laporan & Monitoring</a></li>
-                    <li><a href="logout.php">Logout</a></li>
-                </ul>
-            </nav>
+$pageTitle = 'Kelola Data Barang - SIFASTER';
+$headerTitle = 'Master Data Barang';
+$headerDesc = 'Kelola SKU, Kategori, dan Stok Awal';
+$activePage = 'barang';
+$bodyClass = 'crud-page';
+
+include 'header.php';
+?>
+
 
             <main class="article">
                 <?php if ($error) { ?> <div class="alert alert-danger"><?php echo $error ?></div> <?php } ?>
@@ -107,36 +88,38 @@ if (isset($_POST['simpan'])) {
                     <div class="form-section">
                         <h3><?php echo ($op == 'edit') ? 'Edit Barang' : 'Tambah Barang Baru'; ?></h3>
                         <form action="" method="POST">
-                            <div class="form-group">
-                                <label>Kode Barang (SKU)</label>
-                                <input type="text" name="kode_barang" value="<?php echo htmlspecialchars($kode_barang) ?>" <?php echo ($op == 'edit') ? 'readonly style="background:#eee;"' : ''; ?> required placeholder="Contoh: B001">
-                            </div>
-                            <div class="form-group">
-                                <label>Nama Barang</label>
-                                <input type="text" name="nama_barang" value="<?php echo htmlspecialchars($nama_barang) ?>" required placeholder="Contoh: Kertas HVS">
-                            </div>
-                            <div class="form-group">
-                                <label>Kategori</label>
-                                <select name="kategori" required>
-                                    <option value="">- Pilih Kategori -</option>
-                                    <option value="Bahan Baku" <?php if ($kategori == 'Bahan Baku') echo 'selected' ?>>Bahan Baku</option>
-                                    <option value="Barang Jadi" <?php if ($kategori == 'Barang Jadi') echo 'selected' ?>>Barang Jadi</option>
-                                    <option value="ATK" <?php if ($kategori == 'ATK') echo 'selected' ?>>ATK</option>
-                                    <option value="Lainnya" <?php if ($kategori == 'Lainnya') echo 'selected' ?>>Lainnya</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Satuan</label>
-                                <input type="text" name="satuan" value="<?php echo htmlspecialchars($satuan) ?>" required placeholder="Pcs, Rim, Kg, Liter">
-                            </div>
-                            <div class="form-group">
-                                <label>Stok Awal / Saat Ini</label>
-                                <input type="number" name="stok" value="<?php echo htmlspecialchars($stok) ?>" required>
-                                <small style="color: #666; font-size: 0.8em;">*Gunakan Transaksi untuk update rutin.</small>
-                            </div>
-                            <div class="form-group">
-                                <label>Lokasi Rak</label>
-                                <input type="text" name="lokasi_rak" value="<?php echo htmlspecialchars($lokasi_rak) ?>" required placeholder="Contoh: Rak A-1">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Kode Barang (SKU)</label>
+                                    <input type="text" name="kode_barang" value="<?php echo htmlspecialchars($kode_barang) ?>" <?php echo ($op == 'edit') ? 'readonly style="background:#eee;"' : ''; ?> required placeholder="Contoh: B001">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nama Barang</label>
+                                    <input type="text" name="nama_barang" value="<?php echo htmlspecialchars($nama_barang) ?>" required placeholder="Contoh: Kertas HVS">
+                                </div>
+                                <div class="form-group">
+                                    <label>Kategori</label>
+                                    <select name="kategori" required>
+                                        <option value="">- Pilih Kategori -</option>
+                                        <option value="Bahan Baku" <?php if ($kategori == 'Bahan Baku') echo 'selected' ?>>Bahan Baku</option>
+                                        <option value="Barang Jadi" <?php if ($kategori == 'Barang Jadi') echo 'selected' ?>>Barang Jadi</option>
+                                        <option value="ATK" <?php if ($kategori == 'ATK') echo 'selected' ?>>ATK</option>
+                                        <option value="Lainnya" <?php if ($kategori == 'Lainnya') echo 'selected' ?>>Lainnya</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Satuan</label>
+                                    <input type="text" name="satuan" value="<?php echo htmlspecialchars($satuan) ?>" required placeholder="Pcs, Rim, Kg, Liter">
+                                </div>
+                                <div class="form-group">
+                                    <label>Stok Awal / Saat Ini</label>
+                                    <input type="number" name="stok" value="<?php echo htmlspecialchars($stok) ?>" required>
+                                    <small style="color: #666; font-size: 0.8em;">*Gunakan Transaksi untuk update rutin.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Lokasi Rak</label>
+                                    <input type="text" name="lokasi_rak" value="<?php echo htmlspecialchars($lokasi_rak) ?>" required placeholder="Contoh: Rak A-1">
+                                </div>
                             </div>
                             
                             <div class="button-stack">
@@ -195,23 +178,9 @@ if (isset($_POST['simpan'])) {
                     </div>
                 </div>
             </main>
+            <?php include 'aside.php'; ?>
         </div>
         
-        <footer class="footer">
-            <div class="footer-left">
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-whatsapp"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
-                <a href="#"><i class="fab fa-linkedin"></i></a>
-            </div>
-            <div class="footer-center">
-                Copyright &copy; 2025. All Rights Reserved
-            </div>
-            <div class="footer-right">
-                <div class="footer-brand">FIZARS WEB</div>
-                <div class="footer-slogan">Try to be strong</div>
-            </div>
-        </footer>
-    </div>
+        <?php include 'footer.php'; ?>
 </body>
 </html>

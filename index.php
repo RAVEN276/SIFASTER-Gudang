@@ -20,53 +20,24 @@ while ($rc = mysqli_fetch_assoc($queryChart)) {
     $dataStok[] = $rc['stok'];
 }
 
-$batasAman = 10;
-$queryLow = mysqli_query($koneksi, "SELECT * FROM barang WHERE stok <= $batasAman ORDER BY stok ASC");
-
 $queryMasuk = mysqli_query($koneksi, "SELECT SUM(dt.qty) as total FROM transaksi t JOIN detail_transaksi dt ON t.no_transaksi = dt.no_transaksi WHERE t.tipe = 'Masuk' AND DATE(t.tanggal) = CURDATE()");
+
 $dataMasuk = mysqli_fetch_assoc($queryMasuk);
 $masukHariIni = $dataMasuk['total'] ?? 0;
 
 $queryKeluar = mysqli_query($koneksi, "SELECT SUM(dt.qty) as total FROM transaksi t JOIN detail_transaksi dt ON t.no_transaksi = dt.no_transaksi WHERE t.tipe = 'Keluar' AND DATE(t.tanggal) = CURDATE()");
 $dataKeluar = mysqli_fetch_assoc($queryKeluar);
 $keluarHariIni = $dataKeluar['total'] ?? 0;
+
+$pageTitle = 'SIFASTER Gudang';
+$headerTitle = 'Sistem Informasi Gudang';
+$headerDesc = 'Manufaktur Alat Tulis Kantor (ATK)';
+// $headerLocation handled in header.php
+$activePage = 'dashboard';
+$extraHead = '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
+
+include 'header.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <title>SIFASTER Gudang</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-  <div class="container">
-    <header class="header">
-      <div class="logo">
-          <img src="logo_clear.png" alt="SIFASTER" class="header-logo-img">
-      </div>
-      <div class="header-text">
-        <h1>Sistem Informasi Gudang</h1>
-        <p>Manufaktur Alat Tulis Kantor (ATK)</p>
-        <p class="location">Lokasi: Gudang Utama | User: <?php echo htmlspecialchars($_SESSION['username']); ?> (Admin)</p>
-      </div>
-    </header>
-
-    <div class="content-wrapper">
-      <nav class="nav">
-        <h2>Menu Utama</h2>
-        <ul>
-          <li><a href="index.php" class="active">Dashboard</a></li>
-          <li><a href="adminBarang.php">Master Data & Stok</a></li>
-          <li><a href="adminTransaksiMasuk.php">Transaksi Masuk</a></li>
-          <li><a href="adminTransaksiKeluar.php">Transaksi Keluar</a></li>
-          <li><a href="laporan.php">Laporan & Monitoring</a></li>
-          <li><a href="logout.php">Logout</a></li>
-        </ul>
-      </nav>
-
       <main class="article">
         <h2>Dashboard Ringkasan</h2>
         
@@ -101,50 +72,10 @@ $keluarHariIni = $dataKeluar['total'] ?? 0;
         </div>
       </main>
 
-      <aside class="aside">
-        <h2>Notifikasi (Low Stock)</h2>
-        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">
-            Stok Barang &le; <?php echo $batasAman; ?> Unit. Segera lakukan restock!
-        </p>
-        
-        <div class="notif-container">
-          <?php 
-          if (mysqli_num_rows($queryLow) > 0) {
-              while($row = mysqli_fetch_assoc($queryLow)) {
-                  echo '<a href="adminBarang.php?op=edit&id='.$row['kode_barang'].'" class="notif-item">';
-                  echo '<div class="notif-icon">⚠️</div>';
-                  echo '<div class="notif-details">';
-                  echo '<span class="notif-title">' . htmlspecialchars($row['nama_barang']) . '</span>';
-                  echo '<span class="notif-stock">Sisa: ' . $row['stok'] . ' ' . $row['satuan'] . '</span>';
-                  echo '</div>';
-                  echo '</a>';
-              }
-          } else {
-              echo '<div class="notif-safe">';
-              echo '<span>✅</span> Semua stok barang aman.';
-              echo '</div>';
-          }
-          ?>
-        </div>
-      </aside>
+      <?php include 'aside.php'; ?>
     </div>
 
-    <footer class="footer">
-        <div class="footer-left">
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-whatsapp"></i></a>
-            <a href="#"><i class="fab fa-youtube"></i></a>
-            <a href="#"><i class="fab fa-linkedin"></i></a>
-        </div>
-        <div class="footer-center">
-            Copyright &copy; 2025. All Rights Reserved
-        </div>
-        <div class="footer-right">
-            <div class="footer-brand">FIZARS WEB</div>
-            <div class="footer-slogan">Try to be strong</div>
-        </div>
-    </footer>
-  </div>
+    <?php include 'footer.php'; ?>
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {

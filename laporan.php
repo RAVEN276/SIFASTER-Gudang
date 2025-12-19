@@ -7,16 +7,27 @@ if (!isset($_SESSION['user_logged_in']) || $_SESSION['user_logged_in'] !== true)
     exit;
 }
 
+// Cek Role (Hanya Admin)
+if ($_SESSION['role'] !== 'Admin') {
+    echo "<script>alert('Akses Ditolak!'); window.location.href='index.php';</script>";
+    exit;
+}
+
 $tgl_mulai = isset($_GET['tgl_mulai']) ? $_GET['tgl_mulai'] : date('Y-m-01');
 $tgl_akhir = isset($_GET['tgl_akhir']) ? $_GET['tgl_akhir'] : date('Y-m-d');
 $tipe      = isset($_GET['tipe']) ? $_GET['tipe'] : 'Semua';
 
-$sql = "SELECT t.no_transaksi, t.tanggal, t.tipe, b.kode_barang, b.nama_barang, dt.qty, a.username 
+// Query Laporan Updated (Join ke tabel users)
+$sql = "SELECT t.no_transaksi, t.tanggal, t.tipe, t.status, t.no_referensi, 
+               b.kode_barang, b.nama_barang, dt.qty, 
+               u_req.username as requestor, u_app.username as approver
         FROM transaksi t
         JOIN detail_transaksi dt ON t.no_transaksi = dt.no_transaksi
         JOIN barang b ON dt.kode_barang = b.kode_barang
-        LEFT JOIN admin a ON t.id_admin = a.id_admin
+        LEFT JOIN users u_req ON t.request_by = u_req.id_user
+        LEFT JOIN users u_app ON t.approved_by = u_app.id_user
         WHERE DATE(t.tanggal) BETWEEN '$tgl_mulai' AND '$tgl_akhir'";
+
 
 if ($tipe != 'Semua') {
     $sql .= " AND t.tipe = '$tipe'";
@@ -24,48 +35,23 @@ if ($tipe != 'Semua') {
 
 $sql .= " ORDER BY t.tanggal DESC";
 $query = mysqli_query($koneksi, $sql);
-?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan & Monitoring - SIFASTER</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-  <div class="container">
-    <header class="header">
-      <div class="logo">
-          <img src="logo_clear.png" alt="SIFASTER" class="header-logo-img">
-      </div>
-      <div class="header-text">
-        <h1>Sistem Informasi Gudang</h1>
-        <p>Manufaktur Alat Tulis Kantor (ATK)</p>
-        <p class="location">Lokasi: Gudang Utama | User: <?php echo htmlspecialchars($_SESSION['username']); ?> (Admin)</p>
-      </div>
-    </header>
 
-    <div class="content-wrapper">
-      <nav class="nav">
-        <h2>Menu Utama</h2>
-        <ul>
-          <li><a href="index.php">Dashboard</a></li>
-          <li><a href="adminBarang.php">Master Data & Stok</a></li>
-          <li><a href="adminTransaksiMasuk.php">Transaksi Masuk</a></li>
-          <li><a href="adminTransaksiKeluar.php">Transaksi Keluar</a></li>
-          <li><a href="laporan.php" class="active">Laporan & Monitoring</a></li>
-          <li><a href="logout.php">Logout</a></li>
-        </ul>
-      </nav>
+$pageTitle = 'Laporan & Monitoring - SIFASTER';
+$headerTitle = 'Sistem Informasi Gudang';
+$headerDesc = 'Manufaktur Alat Tulis Kantor (ATK)';
+$headerLocation = 'Lokasi: Gudang Utama | User: ' . htmlspecialchars($_SESSION['username']) . ' (Admin)';
+$activePage = 'laporan';
+
+include 'header.php';
+?>
+
 
       <main class="article">
         <div class="crud-wrapper">
             <div class="form-section">
                 <h3>Filter Laporan Mutasi</h3>
                 <form method="GET" action="">
-                    <div class="form-row">
+                    <div class="form-grid">
                         <div class="form-group">
                             <label>Dari Tanggal</label>
                             <input type="date" name="tgl_mulai" value="<?php echo $tgl_mulai; ?>">
@@ -83,7 +69,7 @@ $query = mysqli_query($koneksi, $sql);
                             </select>
                         </div>
                         
-                        <div class="form-group button-stack"> 
+                        <div class="button-stack"> 
                             <button type="submit" class="btn-submit">Tampilkan</button>
                             <button type="button" onclick="window.print()" class="btn-print">Cetak PDF</button>
                         </div>
@@ -99,12 +85,13 @@ $query = mysqli_query($koneksi, $sql);
                             <tr>
                                 <th>No</th>
                                 <th>No Transaksi</th>
-                                <th>Tanggal & Waktu</th>
+                                <th>Tanggal</th>
                                 <th>Tipe</th>
-                                <th>Kode Barang</th>
-                                <th>Nama Barang</th>
+                                <th>Ref (PO/SPK)</th>
+                                <th>Status</th>
+                                <th>Barang</th>
                                 <th>Qty</th>
-                                <th>Admin (PIC)</th>
+                                <th>User</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -113,20 +100,23 @@ $query = mysqli_query($koneksi, $sql);
                             if (mysqli_num_rows($query) > 0) {
                                 while ($row = mysqli_fetch_assoc($query)) {
                                     $badgeClass = ($row['tipe'] == 'Masuk') ? 'badge-masuk' : 'badge-keluar';
+                                    $statusClass = strtolower($row['status']); // pending, approved, rejected
                                     $tanda = ($row['tipe'] == 'Masuk') ? '+' : '-';
+                                    
                                     echo "<tr>";
                                     echo "<td>" . $no++ . "</td>";
-                                    echo "<td style='font-weight:bold;'>" . $row['no_transaksi'] . "</td>";
+                                    echo "<td style='font-weight:bold;'>" . htmlspecialchars($row['no_transaksi']) . "</td>";
                                     echo "<td>" . $row['tanggal'] . "</td>";
                                     echo "<td><span class='badge $badgeClass'>" . $row['tipe'] . "</span></td>";
-                                    echo "<td>" . $row['kode_barang'] . "</td>";
-                                    echo "<td>" . htmlspecialchars($row['nama_barang']) . "</td>";
+                                    echo "<td>" . htmlspecialchars($row['no_referensi']) . "</td>";
+                                    echo "<td><span class='badge badge-$statusClass'>" . $row['status'] . "</span></td>";
+                                    echo "<td>" . htmlspecialchars($row['nama_barang']) . " (" . $row['kode_barang'] . ")</td>";
                                     echo "<td style='font-weight:bold;'>" . $tanda . $row['qty'] . "</td>";
-                                    echo "<td>" . htmlspecialchars($row['username']) . "</td>";
+                                    echo "<td>Req: " . htmlspecialchars($row['requestor']) . "<br><small>App: " . htmlspecialchars($row['approver']) . "</small></td>";
                                     echo "</tr>";
                                 }
                             } else {
-                                echo "<tr><td colspan='8' style='text-align:center; padding: 20px; color: #666;'>Tidak ada data transaksi pada periode yang dipilih.</td></tr>";
+                                echo "<tr><td colspan='9' style='text-align:center; padding: 20px; color: #666;'>Tidak ada data transaksi pada periode yang dipilih.</td></tr>";
                             }
                             ?>
                         </tbody>
@@ -135,23 +125,9 @@ $query = mysqli_query($koneksi, $sql);
             </div>
         </div>
       </main>
+      <?php include 'aside.php'; ?>
     </div>
 
-    <footer class="footer">
-        <div class="footer-left">
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-whatsapp"></i></a>
-            <a href="#"><i class="fab fa-youtube"></i></a>
-            <a href="#"><i class="fab fa-linkedin"></i></a>
-        </div>
-        <div class="footer-center">
-            Copyright &copy; 2025. All Rights Reserved
-        </div>
-        <div class="footer-right">
-            <div class="footer-brand">FIZARS WEB</div>
-            <div class="footer-slogan">Try to be strong</div>
-        </div>
-    </footer>
-  </div>
+    <?php include 'footer.php'; ?>
 </body>
 </html>
