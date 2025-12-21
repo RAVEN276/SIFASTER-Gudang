@@ -39,7 +39,7 @@ $query = mysqli_query($koneksi, $sql);
 $pageTitle = 'Laporan & Monitoring - SIFASTER';
 $headerTitle = 'Sistem Informasi Gudang';
 $headerDesc = 'Manufaktur Alat Tulis Kantor (ATK)';
-$headerLocation = 'Lokasi: Gudang Utama | User: ' . htmlspecialchars($_SESSION['username']) . ' (Admin)';
+$headerLocation = 'Lokasi: Tangerang Selatan | User: ' . htmlspecialchars($_SESSION['username']) . ' (Admin)';
 $activePage = 'laporan';
 
 include 'header.php';
@@ -66,12 +66,14 @@ include 'header.php';
                                 <option value="Semua" <?php if($tipe == 'Semua') echo 'selected'; ?>>Semua</option>
                                 <option value="Masuk" <?php if($tipe == 'Masuk') echo 'selected'; ?>>Masuk (Inbound)</option>
                                 <option value="Keluar" <?php if($tipe == 'Keluar') echo 'selected'; ?>>Keluar (Outbound)</option>
+                                <option value="Retur" <?php if($tipe == 'Retur') echo 'selected'; ?>>Retur (Pengembalian)</option>
                             </select>
                         </div>
                         
                         <div class="button-stack"> 
                             <button type="submit" class="btn-submit">Tampilkan</button>
                             <button type="button" onclick="window.print()" class="btn-print">Cetak PDF</button>
+                            <a href="laporan_kartu_stok.php" class="btn-edit" style="text-decoration:none; text-align:center;">Kartu Stok</a>
                         </div>
                     </div>
                 </form>

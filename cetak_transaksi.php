@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_logged_in'])) {
 }
 
 $id = $_GET['id'];
-$sql = "SELECT t.*, dt.qty, b.nama_barang, b.satuan, u.username as requestor 
+$sql = "SELECT t.*, dt.qty, b.nama_barang, b.kode_barang, b.satuan, u.username as requestor 
         FROM transaksi t
         JOIN detail_transaksi dt ON t.no_transaksi = dt.no_transaksi
         JOIN barang b ON dt.kode_barang = b.kode_barang
@@ -53,6 +53,22 @@ if ($r['tipe'] == 'Keluar') {
         .signature .line { margin-top: 60px; border-bottom: 1px solid #000; width: 80%; margin-left: auto; margin-right: auto; }
         @media print {
             .no-print { display: none; }
+            body { 
+                margin: 2cm; /* Memberikan jarak konten dari tepi kertas */
+                padding: 0; 
+                background-color: #fff; 
+            }
+            .container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+                border: none;
+            }
+            @page {
+                size: auto;
+                margin: 0; /* Menghilangkan header/footer bawaan browser */
+            }
         }
     </style>
 </head>

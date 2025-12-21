@@ -18,14 +18,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (mysqli_num_rows($result) === 1) {
         $row = mysqli_fetch_assoc($result);
         
-        // Set Session
-        $_SESSION['user_logged_in'] = true;
-        $_SESSION['id_user'] = $row['id_user'];
-        $_SESSION['username'] = $row['username'];
-        $_SESSION['role'] = $row['role']; // Admin, Produksi, Purchasing, Sales
-        
-        header("Location: index.php");
-        exit;
+        // Cek Status Suspend (Sesuai Use Case)
+        if (isset($row['status']) && $row['status'] == 'Suspend') {
+            $error = "Akun Anda dinonaktifkan (Suspend). Hubungi Admin.";
+        } else {
+            // Set Session
+            $_SESSION['user_logged_in'] = true;
+            $_SESSION['id_user'] = $row['id_user'];
+            $_SESSION['username'] = $row['username'];
+            $_SESSION['role'] = $row['role']; // Admin, Produksi, Purchasing, Sales
+            
+            header("Location: index.php");
+            exit;
+        }
     } else {
         $error = "Username atau Password salah!";
     }
@@ -38,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - SIFASTER</title>
   <link rel="stylesheet" href="style.css" />
-  <style>/
+  <style>
     .img-logo {
         width: 250px;
         height: auto;
