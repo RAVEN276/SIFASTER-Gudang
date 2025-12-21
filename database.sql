@@ -75,11 +75,11 @@ INSERT INTO barang (kode_barang, nama_barang, kategori, satuan, stok, lokasi_rak
 -- Tabel CMS Menus
 CREATE TABLE cms_menus (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    menu_name VARCHAR(50) NOT NULL,
-    link VARCHAR(255) NOT NULL,
+    label VARCHAR(50) NOT NULL,
+    url VARCHAR(255) NOT NULL,
     icon VARCHAR(50),
     parent_id INT DEFAULT NULL,
-    order_position INT DEFAULT 0,
+    sort_order INT DEFAULT 0,
     is_active TINYINT(1) DEFAULT 1,
     role_access VARCHAR(255) DEFAULT 'All'
 );
@@ -106,7 +106,7 @@ CREATE TABLE cms_posts (
 );
 
 -- Insert CMS Menus
-INSERT INTO cms_menus (menu_name, link, icon, parent_id, order_position, role_access) VALUES
+INSERT INTO cms_menus (label, url, icon, parent_id, sort_order, role_access) VALUES
 ('Dashboard', 'index.php', 'fa-tachometer-alt', NULL, 1, 'All'),
 ('Master Data', '#', 'fa-box', NULL, 2, 'Admin,Produksi'),
 ('Barang', 'adminBarang.php', 'fa-circle', 2, 1, 'Admin,Produksi'),
