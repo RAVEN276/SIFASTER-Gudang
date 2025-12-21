@@ -168,7 +168,7 @@ include 'header.php';
                                             <td><?php echo htmlspecialchars($r2['lokasi_rak']) ?></td>
                                             <td>
                                                 <a href="adminBarang.php?op=edit&id=<?php echo $id ?>" class="btn-edit">Edit</a>
-                                                <a href="adminBarang.php?op=delete&id=<?php echo $id ?>" onclick="return confirm('Yakin mau delete data?')" class="btn-delete">Del</a>
+                                                <button type="button" class="btn-delete" style="border:none; cursor:pointer;" onclick="confirmAction('delete', '<?php echo $id; ?>')">Del</button>
                                             </td>
                                         </tr>
                                     <?php } ?>
@@ -184,3 +184,33 @@ include 'header.php';
         <?php include 'footer.php'; ?>
 </body>
 </html>
+<script>
+function confirmAction(action, id) {
+    let title, text, icon, confirmBtnColor, confirmBtnText, url;
+
+    if (action === 'delete') {
+        title = 'Hapus Barang?';
+        text = 'Data barang akan dihapus permanen!';
+        icon = 'warning';
+        confirmBtnColor = '#ef4444';
+        confirmBtnText = 'Ya, Hapus!';
+        url = 'adminBarang.php?op=delete&id=' + id;
+    }
+
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: icon,
+        showCancelButton: true,
+        confirmButtonColor: confirmBtnColor,
+        cancelButtonColor: '#d33',
+        confirmButtonText: confirmBtnText,
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = url;
+        }
+    });
+}
+</script>
+

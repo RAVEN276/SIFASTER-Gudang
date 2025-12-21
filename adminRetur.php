@@ -236,10 +236,10 @@ include 'header.php';
                             <td>
                                 <?php if ($r['status'] == 'Pending'): ?>
                                     <?php if ($_SESSION['role'] == 'Admin'): ?>
-                                        <a href="adminRetur.php?op=approve&id=<?php echo $r['no_transaksi']; ?>" class="btn-edit" style="background:#10b981;" onclick="return confirm('Setujui Retur ini? Stok akan bertambah.')" title="Approve"><i class="fas fa-check"></i></a>
-                                        <a href="adminRetur.php?op=reject&id=<?php echo $r['no_transaksi']; ?>" class="btn-delete" onclick="return confirm('Tolak Retur ini?')" title="Reject"><i class="fas fa-times"></i></a>
+                                        <button type="button" class="btn-edit" style="background:#10b981; border:none; cursor:pointer;" onclick="confirmAction('approve', '<?php echo $r['no_transaksi']; ?>')" title="Approve"><i class="fas fa-check"></i></button>
+                                        <button type="button" class="btn-delete" style="border:none; cursor:pointer;" onclick="confirmAction('reject', '<?php echo $r['no_transaksi']; ?>')" title="Reject"><i class="fas fa-times"></i></button>
                                     <?php endif; ?>
-                                    <a href="adminRetur.php?op=delete&id=<?php echo $r['no_transaksi']; ?>" class="btn-delete" style="background:#64748b;" onclick="return confirm('Hapus draft ini?')" title="Hapus"><i class="fas fa-trash"></i></a>
+                                    <button type="button" class="btn-delete" style="background:#64748b; border:none; cursor:pointer;" onclick="confirmAction('delete', '<?php echo $r['no_transaksi']; ?>')" title="Hapus"><i class="fas fa-trash"></i></button>
                                 <?php else: ?>
                                     <span style="color:#94a3b8;"><i class="fas fa-lock"></i> Locked</span>
                                 <?php endif; ?>
@@ -253,6 +253,50 @@ include 'header.php';
 
     </div>
 </main>
+
+<script>
+function confirmAction(action, id) {
+    let title, text, icon, confirmBtnColor, confirmBtnText, url;
+
+    if (action === 'approve') {
+        title = 'Setujui Retur?';
+        text = "Stok barang akan bertambah otomatis!";
+        icon = 'warning';
+        confirmBtnColor = '#10b981';
+        confirmBtnText = 'Ya, Setujui!';
+        url = 'adminRetur.php?op=approve&id=' + id;
+    } else if (action === 'reject') {
+        title = 'Tolak Retur?';
+        text = "Permintaan ini akan ditandai sebagai Rejected.";
+        icon = 'warning';
+        confirmBtnColor = '#ef4444';
+        confirmBtnText = 'Ya, Tolak!';
+        url = 'adminRetur.php?op=reject&id=' + id;
+    } else if (action === 'delete') {
+        title = 'Hapus Draft?';
+        text = "Data yang dihapus tidak dapat dikembalikan!";
+        icon = 'warning';
+        confirmBtnColor = '#64748b';
+        confirmBtnText = 'Ya, Hapus!';
+        url = 'adminRetur.php?op=delete&id=' + id;
+    }
+
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: icon,
+        showCancelButton: true,
+        confirmButtonColor: confirmBtnColor,
+        cancelButtonColor: '#d33',
+        confirmButtonText: confirmBtnText,
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = url;
+        }
+    });
+}
+</script>
 
 <?php include 'aside.php'; ?>
 </div>

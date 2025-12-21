@@ -92,14 +92,18 @@
                             <?php 
                             mysqli_data_seek($q_notif, 0);
                             while($rn = mysqli_fetch_array($q_notif)): 
+                                $uniqId = 'stock-' . $rn['kode_barang'];
                             ?>
-                                <a href="<?php echo $prefix; ?>adminBarang.php?op=edit&id=<?php echo $rn['kode_barang']; ?>" class="notif-item">
-                                    <div class="notif-icon" style="background: #fee2e2; color: #ef4444;"><i class="fas fa-box"></i></div>
-                                    <div class="notif-details">
-                                        <div class="notif-title"><?php echo htmlspecialchars($rn['nama_barang']); ?></div>
-                                        <div class="notif-stock">Sisa: <b><?php echo $rn['stok']; ?> <?php echo $rn['satuan']; ?></b></div>
-                                    </div>
-                                </a>
+                                <div class="notif-wrapper" id="notif-<?php echo $uniqId; ?>">
+                                    <a href="<?php echo $prefix; ?>adminBarang.php?op=edit&id=<?php echo $rn['kode_barang']; ?>" class="notif-item">
+                                        <div class="notif-icon" style="background: #fee2e2; color: #ef4444;"><i class="fas fa-box"></i></div>
+                                        <div class="notif-details">
+                                            <div class="notif-title"><?php echo htmlspecialchars($rn['nama_barang']); ?></div>
+                                            <div class="notif-stock">Sisa: <b><?php echo $rn['stok']; ?> <?php echo $rn['satuan']; ?></b></div>
+                                        </div>
+                                    </a>
+                                    <button class="notif-close" onclick="dismissNotif('<?php echo $uniqId; ?>')">&times;</button>
+                                </div>
                             <?php endwhile; ?>
                         <?php endif; ?>
 
@@ -109,14 +113,18 @@
                             <?php 
                             while($rp = mysqli_fetch_array($q_pending)): 
                                 $link = ($rp['tipe'] == 'Masuk') ? 'adminTransaksiMasuk.php' : 'adminTransaksiKeluar.php';
+                                $uniqId = 'pending-' . $rp['no_transaksi'];
                             ?>
-                                <a href="<?php echo $prefix . $link; ?>?op=approve&id=<?php echo $rp['no_transaksi']; ?>" class="notif-item">
-                                    <div class="notif-icon" style="background: #fff7ed; color: #f97316;"><i class="fas fa-clock"></i></div>
-                                    <div class="notif-details">
-                                        <div class="notif-title"><?php echo $rp['tipe']; ?>: <?php echo $rp['no_transaksi']; ?></div>
-                                        <div class="notif-stock">Req by: <?php echo htmlspecialchars($rp['username']); ?></div>
-                                    </div>
-                                </a>
+                                <div class="notif-wrapper" id="notif-<?php echo $uniqId; ?>">
+                                    <a href="<?php echo $prefix . $link; ?>?op=approve&id=<?php echo $rp['no_transaksi']; ?>" class="notif-item">
+                                        <div class="notif-icon" style="background: #fff7ed; color: #f97316;"><i class="fas fa-clock"></i></div>
+                                        <div class="notif-details">
+                                            <div class="notif-title"><?php echo $rp['tipe']; ?>: <?php echo $rp['no_transaksi']; ?></div>
+                                            <div class="notif-stock">Req by: <?php echo htmlspecialchars($rp['username']); ?></div>
+                                        </div>
+                                    </a>
+                                    <button class="notif-close" onclick="dismissNotif('<?php echo $uniqId; ?>')">&times;</button>
+                                </div>
                             <?php endwhile; ?>
                         <?php endif; ?>
 
@@ -125,14 +133,18 @@
                             <div class="notif-section-title">Permintaan Retur</div>
                             <?php 
                             while($rr = mysqli_fetch_array($q_retur)): 
+                                $uniqId = 'retur-' . $rr['no_transaksi'];
                             ?>
-                                <a href="<?php echo $prefix; ?>adminRetur.php" class="notif-item">
-                                    <div class="notif-icon" style="background: #fef2f2; color: #dc2626;"><i class="fas fa-undo"></i></div>
-                                    <div class="notif-details">
-                                        <div class="notif-title">Retur: <?php echo $rr['no_transaksi']; ?></div>
-                                        <div class="notif-stock">Req by: <?php echo htmlspecialchars($rr['username']); ?></div>
-                                    </div>
-                                </a>
+                                <div class="notif-wrapper" id="notif-<?php echo $uniqId; ?>">
+                                    <a href="<?php echo $prefix; ?>adminRetur.php" class="notif-item">
+                                        <div class="notif-icon" style="background: #fef2f2; color: #dc2626;"><i class="fas fa-undo"></i></div>
+                                        <div class="notif-details">
+                                            <div class="notif-title">Retur: <?php echo $rr['no_transaksi']; ?></div>
+                                            <div class="notif-stock">Req by: <?php echo htmlspecialchars($rr['username']); ?></div>
+                                        </div>
+                                    </a>
+                                    <button class="notif-close" onclick="dismissNotif('<?php echo $uniqId; ?>')">&times;</button>
+                                </div>
                             <?php endwhile; ?>
                         <?php endif; ?>
 
@@ -158,13 +170,17 @@
                                     $iconBg = '#ffedd5';
                                     $iconClass = 'fa-hourglass-half';
                                 }
+                                $uniqId = 'myreq-' . $mr['no_transaksi'];
                             ?>
-                                <div class="notif-item" style="cursor: default;">
-                                    <div class="notif-icon" style="background: <?php echo $iconBg; ?>; color: <?php echo $iconColor; ?>;"><i class="fas <?php echo $iconClass; ?>"></i></div>
-                                    <div class="notif-details">
-                                        <div class="notif-title"><?php echo $mr['tipe']; ?>: <?php echo $mr['no_transaksi']; ?></div>
-                                        <div class="notif-stock">Status: <b><?php echo $mr['status']; ?></b></div>
+                                <div class="notif-wrapper" id="notif-<?php echo $uniqId; ?>">
+                                    <div class="notif-item" style="cursor: default;">
+                                        <div class="notif-icon" style="background: <?php echo $iconBg; ?>; color: <?php echo $iconColor; ?>;"><i class="fas <?php echo $iconClass; ?>"></i></div>
+                                        <div class="notif-details">
+                                            <div class="notif-title"><?php echo $mr['tipe']; ?>: <?php echo $mr['no_transaksi']; ?></div>
+                                            <div class="notif-stock">Status: <b><?php echo $mr['status']; ?></b></div>
+                                        </div>
                                     </div>
+                                    <button class="notif-close" onclick="dismissNotif('<?php echo $uniqId; ?>')">&times;</button>
                                 </div>
                             <?php endwhile; ?>
                         <?php endif; ?>
@@ -179,6 +195,57 @@
             const dropdown = document.getElementById('notifDropdown');
             dropdown.classList.toggle('active');
         }
+
+        function dismissNotif(id) {
+            // Hide the element
+            const el = document.getElementById('notif-' + id);
+            if (el) {
+                el.style.display = 'none';
+            }
+            
+            // Save to localStorage
+            let dismissed = JSON.parse(localStorage.getItem('dismissedNotifs') || '[]');
+            if (!dismissed.includes(id)) {
+                dismissed.push(id);
+                localStorage.setItem('dismissedNotifs', JSON.stringify(dismissed));
+            }
+            
+            updateBadgeCount();
+        }
+
+        function updateBadgeCount() {
+            // Count all .notif-wrapper that do NOT have display: none
+            const allNotifs = document.querySelectorAll('.notif-wrapper');
+            let visibleCount = 0;
+            
+            allNotifs.forEach(el => {
+                if (el.style.display !== 'none') {
+                    visibleCount++;
+                }
+            });
+
+            const badge = document.querySelector('.notif-badge');
+            if (badge) {
+                badge.innerText = visibleCount;
+                if (visibleCount === 0) {
+                    badge.style.display = 'none';
+                } else {
+                    badge.style.display = ''; // Revert to default CSS
+                }
+            }
+        }
+
+        // Apply dismissed state on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const dismissed = JSON.parse(localStorage.getItem('dismissedNotifs') || '[]');
+            dismissed.forEach(id => {
+                const el = document.getElementById('notif-' + id);
+                if (el) {
+                    el.style.display = 'none';
+                }
+            });
+            updateBadgeCount();
+        });
 
         // Close when clicking outside
         document.addEventListener('click', function(e) {

@@ -222,13 +222,13 @@ include 'header.php';
                                                     
                                                     <!-- Tombol Approval (Hanya Admin) -->
                                                     <?php if ($role_login == 'Admin'): ?>
-                                                        <a href="adminTransaksiMasuk.php?op=approve&id=<?php echo $r['no_transaksi']; ?>" class="btn-edit" onclick="return confirm('Setujui PO ini? Stok akan bertambah.')">Approve</a>
-                                                        <a href="adminTransaksiMasuk.php?op=reject&id=<?php echo $r['no_transaksi']; ?>" class="btn-delete" onclick="return confirm('Tolak PO ini?')">Reject</a>
+                                                        <button type="button" class="btn-edit" style="background:#10b981; border:none; cursor:pointer;" onclick="confirmAction('approve', '<?php echo $r['no_transaksi']; ?>')" title="Approve">Approve</button>
+                                                        <button type="button" class="btn-delete" style="border:none; cursor:pointer;" onclick="confirmAction('reject', '<?php echo $r['no_transaksi']; ?>')" title="Reject">Reject</button>
                                                     <?php endif; ?>
 
                                                     <!-- Tombol Hapus (Admin atau Pembuat Request) -->
                                                     <?php if ($role_login == 'Admin' || $id_user_login == $r['request_by']): ?>
-                                                        <a href="adminTransaksiMasuk.php?op=delete&id=<?php echo $r['no_transaksi']; ?>" class="btn-delete" onclick="return confirm('Hapus draft request ini?')">Hapus</a>
+                                                        <button type="button" class="btn-delete" style="background:#64748b; border:none; cursor:pointer;" onclick="confirmAction('delete', '<?php echo $r['no_transaksi']; ?>')" title="Hapus">Hapus</button>
                                                     <?php endif; ?>
 
                                                 <?php else: ?>
@@ -251,3 +251,48 @@ include 'header.php';
                 </div>
             </main>
 <?php include 'footer.php'; ?>
+
+<script>
+function confirmAction(action, id) {
+    let title, text, icon, confirmBtnColor, confirmBtnText, url;
+
+    if (action === 'approve') {
+        title = 'Setujui PO?';
+        text = 'Stok barang akan bertambah otomatis!';
+        icon = 'warning';
+        confirmBtnColor = '#10b981';
+        confirmBtnText = 'Ya, Setujui!';
+        url = 'adminTransaksiMasuk.php?op=approve&id=' + id;
+    } else if (action === 'reject') {
+        title = 'Tolak PO?';
+        text = 'Permintaan ini akan ditandai sebagai Rejected.';
+        icon = 'warning';
+        confirmBtnColor = '#ef4444';
+        confirmBtnText = 'Ya, Tolak!';
+        url = 'adminTransaksiMasuk.php?op=reject&id=' + id;
+    } else if (action === 'delete') {
+        title = 'Hapus Draft?';
+        text = 'Data yang dihapus tidak dapat dikembalikan!';
+        icon = 'warning';
+        confirmBtnColor = '#64748b';
+        confirmBtnText = 'Ya, Hapus!';
+        url = 'adminTransaksiMasuk.php?op=delete&id=' + id;
+    }
+
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: icon,
+        showCancelButton: true,
+        confirmButtonColor: confirmBtnColor,
+        cancelButtonColor: '#d33',
+        confirmButtonText: confirmBtnText,
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = url;
+        }
+    });
+}
+</script>
+
