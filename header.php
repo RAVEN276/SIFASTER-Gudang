@@ -289,10 +289,10 @@
                                 // Determine Active State
                                 $isActive = '';
                                 if(isset($activePage)) {
-                                    if(strpos($m['url'], $activePage) !== false) {
+                                    if(stripos($m['url'], $activePage) !== false) {
                                         $isActive = 'active';
                                     }
-                                    if($activePage == 'dashboard' && $m['url'] == 'index.php') $isActive = 'active';
+                                    if($activePage == 'dashboard' && ($m['url'] == 'index.php' || $m['url'] == '')) $isActive = 'active';
                                     if($activePage == 'adminWeb' && $m['url'] == 'adminWeb.php') $isActive = 'active';
                                 }
                                 

@@ -1,4 +1,4 @@
-    </div> <!-- End content-wrapper -->
+    </div> 
     
     <footer class="footer">
         <div class="footer-left">
@@ -11,8 +11,8 @@
             Copyright &copy; 2025. All Rights Reserved
         </div>
         <div class="footer-right">
-            <div class="footer-brand">FIZARS WEB</div>
-            <div class="footer-slogan">Try to be strong</div>
+            <div class="footer-brand">SIFASTER</div>
+            <div class="footer-slogan">Real-Time, Real Solution</div>
         </div>
     </footer>
-</div> <!-- End container -->
+</div> 
