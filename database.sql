@@ -7,129 +7,165 @@ SET FOREIGN_KEY_CHECKS = 0;
 CREATE DATABASE IF NOT EXISTS sifaster_gudang;
 USE sifaster_gudang;
 
--- 1. Buat Tabel dulu (ditutup dengan kurung dan titik koma)
-CREATE TABLE users (
-    id_user INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('Admin', 'Produksi', 'Purchasing', 'Sales') NOT NULL,
-    status ENUM('Aktif', 'Suspend') DEFAULT 'Aktif'
-); 
+-- --------------------------------------------------------
+-- 2. STRUKTUR TABEL (DARI sifaster_gudang.sql - TANPA ENGINE)
+-- --------------------------------------------------------
 
--- 2. Baru jalankan Insert (terpisah)
-INSERT INTO users (username, password, role, status) VALUES 
-('admin', MD5('123'), 'Admin', 'Aktif'),
-('produksi', MD5('123'), 'Produksi', 'Aktif'),
-('purchasing', MD5('123'), 'Purchasing', 'Aktif'),
-('sales', MD5('123'), 'Sales', 'Aktif');
-
--- Tabel Barang
-CREATE TABLE barang (
-    kode_barang VARCHAR(20) PRIMARY KEY,
-    nama_barang VARCHAR(100) NOT NULL,
-    kategori VARCHAR(50),
-    satuan VARCHAR(20),
-    stok INT DEFAULT 0,
-    lokasi_rak VARCHAR(50)
+-- Table structure for table `barang`
+CREATE TABLE `barang` (
+  `kode_barang` varchar(20) NOT NULL,
+  `nama_barang` varchar(100) NOT NULL,
+  `kategori` varchar(50) DEFAULT NULL,
+  `satuan` varchar(20) DEFAULT NULL,
+  `stok` int DEFAULT '0',
+  `lokasi_rak` varchar(50) DEFAULT NULL
 );
 
--- Tabel Transaksi
-CREATE TABLE transaksi (
-    no_transaksi VARCHAR(20) PRIMARY KEY,
-    tanggal DATETIME DEFAULT CURRENT_TIMESTAMP,
-    tipe ENUM('Masuk', 'Keluar', 'Retur') NOT NULL,
-    no_referensi VARCHAR(50), 
-    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-    request_by INT,
-    approved_by INT,
-    FOREIGN KEY (request_by) REFERENCES users(id_user),
-    FOREIGN KEY (approved_by) REFERENCES users(id_user)
+-- Table structure for table `cms_categories`
+CREATE TABLE `cms_categories` (
+  `id` int NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(100) NOT NULL
 );
 
--- Tabel Detail Transaksi
-CREATE TABLE detail_transaksi (
-    id_detail INT AUTO_INCREMENT PRIMARY KEY,
-    no_transaksi VARCHAR(20),
-    kode_barang VARCHAR(20),
-    qty INT,
-    FOREIGN KEY (no_transaksi) REFERENCES transaksi(no_transaksi) ON DELETE CASCADE,
-    FOREIGN KEY (kode_barang) REFERENCES barang(kode_barang)
+-- Table structure for table `cms_menus`
+CREATE TABLE `cms_menus` (
+  `id` int NOT NULL,
+  `label` varchar(100) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `role_access` varchar(255) NOT NULL COMMENT 'Comma separated roles',
+  `sort_order` int DEFAULT '0',
+  `is_active` tinyint(1) DEFAULT '1'
 );
 
--- ==========================================
--- 3. INSERT DATA DUMMY
--- ==========================================
--- CATATAN: TRUNCATE DIHAPUS KARENA TABEL BARU DIBUAT (PASTI KOSONG)
+-- Table structure for table `cms_posts`
+CREATE TABLE `cms_posts` (
+  `id` int NOT NULL,
+  `category_id` int DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `content` text,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `author_id` int DEFAULT NULL
+);
 
--- Insert Barang
-INSERT INTO barang (kode_barang, nama_barang, kategori, satuan, stok, lokasi_rak) VALUES 
+-- Table structure for table `detail_transaksi`
+CREATE TABLE `detail_transaksi` (
+  `id_detail` int NOT NULL,
+  `no_transaksi` varchar(20) DEFAULT NULL,
+  `kode_barang` varchar(20) DEFAULT NULL,
+  `qty` int DEFAULT NULL
+);
+
+-- Table structure for table `transaksi`
+CREATE TABLE `transaksi` (
+  `no_transaksi` varchar(20) NOT NULL,
+  `tanggal` datetime DEFAULT CURRENT_TIMESTAMP,
+  `tipe` enum('Masuk','Keluar','Retur') NOT NULL,
+  `no_referensi` varchar(50) DEFAULT NULL,
+  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
+  `request_by` int DEFAULT NULL,
+  `approved_by` int DEFAULT NULL
+);
+
+-- Table structure for table `users`
+CREATE TABLE `users` (
+  `id_user` int NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('Admin','Produksi','Purchasing','Sales') NOT NULL,
+  `status` enum('Aktif','Suspend') DEFAULT 'Aktif'
+);
+
+-- --------------------------------------------------------
+-- 3. DATA DUMMY (DARI database.sql)
+-- --------------------------------------------------------
+
+-- Dumping data for table `users`
+INSERT INTO `users` (`id_user`, `username`, `password`, `role`, `status`) VALUES
+(1, 'admin', MD5('123'), 'Admin', 'Aktif'),
+(2, 'produksi', MD5('123'), 'Produksi', 'Aktif'),
+(3, 'purchasing', MD5('123'), 'Purchasing', 'Aktif'),
+(4, 'sales', MD5('123'), 'Sales', 'Aktif');
+
+-- Dumping data for table `barang`
+INSERT INTO `barang` (`kode_barang`, `nama_barang`, `kategori`, `satuan`, `stok`, `lokasi_rak`) VALUES 
 ('B001', 'Kertas HVS A4', 'Kertas', 'Rim', 50, 'Rak A-1'),
 ('B002', 'Tinta Cair Hitam', 'Tinta', 'Liter', 5, 'Rak B-2'),
 ('B003', 'Kayu Pensil', 'Bahan Baku', 'Kg', 100, 'Gudang C'),
 ('B004', 'Pensil 2B (Jadi)', 'Barang Jadi', 'Pcs', 0, 'Gudang A');
 
--- ==========================================
--- 3.1. TABEL & DATA CMS (KELOLA WEB)
--- ==========================================
+-- Dumping data for table `cms_categories`
+INSERT INTO `cms_categories` (`id`, `name`, `slug`) VALUES
+(1, 'Berita', 'berita'),
+(2, 'Pengumuman', 'pengumuman'),
+(3, 'Artikel', 'artikel');
 
--- Tabel CMS Menus
-CREATE TABLE cms_menus (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    label VARCHAR(50) NOT NULL,
-    url VARCHAR(255) NOT NULL,
-    sort_order INT DEFAULT 0,
-    is_active TINYINT(1) DEFAULT 1,
-    role_access VARCHAR(255) DEFAULT 'All'
-);
+-- Dumping data for table `cms_menus`
+-- Menyesuaikan data dummy dengan struktur baru (label, url, role_access, sort_order, is_active)
+INSERT INTO `cms_menus` (`label`, `url`, `role_access`, `sort_order`, `is_active`) VALUES
+('Dashboard', 'index.php', 'All', 1, 1),
+('Master Data', '#', 'Admin,Produksi', 2, 1),
+('Barang', 'adminBarang.php', 'Admin,Produksi', 3, 1),
+('Transaksi', '#', 'All', 4, 1),
+('Barang Masuk', 'adminTransaksiMasuk.php', 'Admin,Purchasing,Produksi', 5, 1),
+('Barang Keluar', 'adminTransaksiKeluar.php', 'Admin,Sales,Produksi', 6, 1),
+('Retur Barang', 'adminRetur.php', 'Admin,Sales', 7, 1),
+('Laporan', 'laporan.php', 'Admin,Manager', 8, 1),
+('Kelola Web', 'adminWeb.php', 'Admin', 9, 1);
 
--- Tabel CMS Categories
-CREATE TABLE cms_categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    slug VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT
-);
+-- Dumping data for table `cms_posts`
+INSERT INTO `cms_posts` (`title`, `content`, `category_id`, `author_id`) VALUES
+('Selamat Datang di SIFASTER', '<p>Selamat datang di sistem manajemen gudang SIFASTER.</p>', 2, 1),
+('Update Stok Akhir Tahun', '<p>Harap melakukan opname stok sebelum tanggal 31 Desember.</p>', 2, 1),
+('Cara Menggunakan Scanner', '<p>Berikut adalah panduan menggunakan scanner barcode...</p>', 3, 1);
 
--- Tabel CMS Posts
-CREATE TABLE cms_posts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) NOT NULL UNIQUE,
-    content TEXT,
-    category_id INT,
-    author_id INT,
-    status ENUM('Draft', 'Published', 'Archived') DEFAULT 'Draft',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES cms_categories(id) ON DELETE SET NULL,
-    FOREIGN KEY (author_id) REFERENCES users(id_user) ON DELETE SET NULL
-);
+-- --------------------------------------------------------
+-- 4. INDEXES & CONSTRAINTS (DARI sifaster_gudang.sql)
+-- --------------------------------------------------------
 
--- Insert CMS Menus
-INSERT INTO cms_menus (label, url, icon, parent_id, sort_order, role_access) VALUES
-('Dashboard', 'index.php', 'fa-tachometer-alt', NULL, 1, 'All'),
-('Master Data', '#', 'fa-box', NULL, 2, 'Admin,Produksi'),
-('Barang', 'adminBarang.php', 'fa-circle', 2, 1, 'Admin,Produksi'),
-('Transaksi', '#', 'fa-exchange-alt', NULL, 3, 'All'),
-('Barang Masuk', 'adminTransaksiMasuk.php', 'fa-arrow-down', 4, 1, 'Admin,Purchasing,Produksi'),
-('Barang Keluar', 'adminTransaksiKeluar.php', 'fa-arrow-up', 4, 2, 'Admin,Sales,Produksi'),
-('Retur Barang', 'adminRetur.php', 'fa-undo', 4, 3, 'Admin,Sales'),
-('Laporan', 'laporan.php', 'fa-file-alt', NULL, 4, 'Admin,Manager'),
-('Kelola Web', 'adminWeb.php', 'fa-globe', NULL, 5, 'Admin');
+-- Indexes for table `barang`
+ALTER TABLE `barang` ADD PRIMARY KEY (`kode_barang`);
 
--- Insert CMS Categories
-INSERT INTO cms_categories (name, slug, description) VALUES
-('Berita', 'berita', 'Kategori untuk berita terkini'),
-('Pengumuman', 'pengumuman', 'Pengumuman penting perusahaan'),
-('Artikel', 'artikel', 'Artikel umum dan tutorial');
+-- Indexes for table `cms_categories`
+ALTER TABLE `cms_categories` ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `slug` (`slug`);
 
--- Insert CMS Posts
-INSERT INTO cms_posts (title, slug, content, category_id, author_id, status) VALUES
-('Selamat Datang di SIFASTER', 'welcome-sifaster', '<p>Selamat datang di sistem manajemen gudang SIFASTER.</p>', 2, 1, 'Published'),
-('Update Stok Akhir Tahun', 'update-stok-2025', '<p>Harap melakukan opname stok sebelum tanggal 31 Desember.</p>', 2, 1, 'Published'),
-('Cara Menggunakan Scanner', 'tutorial-scanner', '<p>Berikut adalah panduan menggunakan scanner barcode...</p>', 3, 1, 'Draft');
+-- Indexes for table `cms_menus`
+ALTER TABLE `cms_menus` ADD PRIMARY KEY (`id`);
 
--- ==========================================
--- 4. FINISHING
--- ==========================================
+-- Indexes for table `cms_posts`
+ALTER TABLE `cms_posts` ADD PRIMARY KEY (`id`), ADD KEY `category_id` (`category_id`);
+
+-- Indexes for table `detail_transaksi`
+ALTER TABLE `detail_transaksi` ADD PRIMARY KEY (`id_detail`), ADD KEY `no_transaksi` (`no_transaksi`), ADD KEY `kode_barang` (`kode_barang`);
+
+-- Indexes for table `transaksi`
+ALTER TABLE `transaksi` ADD PRIMARY KEY (`no_transaksi`), ADD KEY `request_by` (`request_by`), ADD KEY `approved_by` (`approved_by`);
+
+-- Indexes for table `users`
+ALTER TABLE `users` ADD PRIMARY KEY (`id_user`), ADD UNIQUE KEY `username` (`username`);
+
+-- AUTO_INCREMENT for table `cms_categories`
+ALTER TABLE `cms_categories` MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+-- AUTO_INCREMENT for table `cms_menus`
+ALTER TABLE `cms_menus` MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+-- AUTO_INCREMENT for table `cms_posts`
+ALTER TABLE `cms_posts` MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+-- AUTO_INCREMENT for table `detail_transaksi`
+ALTER TABLE `detail_transaksi` MODIFY `id_detail` int NOT NULL AUTO_INCREMENT;
+
+-- AUTO_INCREMENT for table `users`
+ALTER TABLE `users` MODIFY `id_user` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+-- Constraints for table `cms_posts`
+ALTER TABLE `cms_posts` ADD CONSTRAINT `cms_posts_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `cms_categories` (`id`) ON DELETE SET NULL;
+
+-- Constraints for table `detail_transaksi`
+ALTER TABLE `detail_transaksi` ADD CONSTRAINT `detail_transaksi_ibfk_1` FOREIGN KEY (`no_transaksi`) REFERENCES `transaksi` (`no_transaksi`) ON DELETE CASCADE, ADD CONSTRAINT `detail_transaksi_ibfk_2` FOREIGN KEY (`kode_barang`) REFERENCES `barang` (`kode_barang`);
+
+-- Constraints for table `transaksi`
+ALTER TABLE `transaksi` ADD CONSTRAINT `transaksi_ibfk_1` FOREIGN KEY (`request_by`) REFERENCES `users` (`id_user`), ADD CONSTRAINT `transaksi_ibfk_2` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id_user`);
+
 SET FOREIGN_KEY_CHECKS = 1;
