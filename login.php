@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - SIFASTER</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     .img-logo {
@@ -115,7 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Masukkan password" required>
+            <div class="password-wrapper">
+                <input type="password" id="password" name="password" placeholder="Masukkan password" required>
+                <i class="fas fa-eye toggle-password" id="togglePasswordBtn" onclick="togglePasswordVisibility()"></i>
+            </div>
           </div>
 
           <div style="margin-top: 30px;">
@@ -136,6 +140,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 
   <script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('togglePasswordBtn');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
     function showContactIT(e) {
         e.preventDefault();
         Swal.fire({

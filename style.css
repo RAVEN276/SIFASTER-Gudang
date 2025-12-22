@@ -618,6 +618,33 @@ th,
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+/* Password Visibility Toggle */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  padding-right: 45px;
+  /* Space for the eye icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+  z-index: 5;
+}
+
+.toggle-password:hover {
+  color: var(--primary-color);
+}
+
 .btn-submit,
 .btn-login,
 .btn-action,
