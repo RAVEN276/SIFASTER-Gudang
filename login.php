@@ -93,11 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="login-right">
+      <div class="mobile-logo-container">
+        <img src="logo.png" alt="SIFASTER" class="img-logo-mobile">
+      </div>
+
       <div class="login-card">
-        
-        <div class="mobile-logo-container">
-            <img src="logo.png" alt="SIFASTER" class="img-logo-mobile">
-        </div>
 
         <h2 style="margin-bottom: 20px; color: var(--primary-color);">Welcome Back!</h2>
         
