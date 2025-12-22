@@ -1030,13 +1030,15 @@ tr:last-child td {
     /* Needed for absolute centering */
     justify-content: space-between;
     /* Pushes left/right to edges */
+    padding: 15px 20px !important;
+    /* Adjusted padding as requested */
   }
 
   /* Grid 2x2 untuk Social Icons */
   .footer-left {
-    display: grid !important;
-    grid-template-columns: repeat(2, auto) !important;
-    gap: 8px !important;
+    display: flex !important;
+    /* Ubah ke flex agar satu baris rapi jika cukup */
+    gap: 12px !important;
     margin-right: 0;
     z-index: 2;
     /* Ensure clickable */
@@ -1047,6 +1049,8 @@ tr:last-child td {
   .footer-left a {
     text-decoration: none !important;
     border: none !important;
+    font-size: 1.2rem;
+    /* Sedikit diperkecil agar pas */
   }
 
   /* POSITION ABSOLUTE UNTUK PERFECT CENTER */
@@ -1055,10 +1059,14 @@ tr:last-child td {
     left: 50% !important;
     top: 50% !important;
     transform: translate(-50%, -50%) !important;
-    font-size: 0.7rem !important;
+    font-size: 0.65rem !important;
+    /* Perkecil sedikit agar muat */
     text-align: center !important;
-    width: auto !important;
-    white-space: nowrap;
+    width: 40% !important;
+    /* Batasi lebar agar tidak menabrak kiri/kanan */
+    white-space: normal !important;
+    /* Izinkan text wrap */
+    line-height: 1.2;
     padding: 0;
     margin: 0;
   }
@@ -1079,10 +1087,11 @@ tr:last-child td {
 
   .footer-slogan {
     display: block !important;
-    font-size: 0.65rem !important;
+    font-size: 0.6rem !important;
     white-space: nowrap;
   }
 }
+
 
 /* --- MOBILE MODE (Max 768px) --- */
 @media screen and (max-width: 768px) {
@@ -1183,7 +1192,17 @@ tr:last-child td {
     border: 1px solid var(--border-color);
   }
 
-  /* 5. FOOTER (Removed - handled in 992px) */
+  /* 5. FOOTER FIXED FOR MOBILE (2 Baris Icon) */
+  .footer-left {
+    display: grid !important;
+    grid-template-columns: repeat(2, auto) !important;
+    gap: 8px !important;
+  }
+
+  .footer-left a {
+    font-size: 1.1rem !important;
+    /* Sedikit lebih kecil dari tablet (1.2rem) */
+  }
 
 
   /* Form & UI Adjustments */
