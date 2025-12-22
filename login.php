@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - SIFASTER</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     .img-logo {
         width: 250px;
@@ -122,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
           
           <p style="margin-top: 20px; font-size: 0.85rem; color: #64748b; text-align: center;">
-            Lupa password? <a href="#" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Hubungi IT</a>
+            Lupa password? <a href="#" onclick="showContactIT(event)" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Hubungi IT</a>
           </p>
         </form>
       </div>
@@ -133,6 +134,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
   </div>
+
+  <script>
+    function showContactIT(e) {
+        e.preventDefault();
+        Swal.fire({
+            title: '<strong>Hubungi IT Support</strong>',
+            icon: 'info',
+            html:
+                'Untuk reset password, silakan hubungi:<br><br>' +
+                '<div style="text-align:left; background:#f8fafc; padding:15px; border-radius:8px; font-size:0.9rem;">' +
+                '<b>👨‍💻 Admin IT</b><br>' +
+                '📞 WhatsApp: <a href="https://wa.me/6281234567890" target="_blank" style="color:#2563eb; text-decoration:none;">0812-3456-7890</a><br>' +
+                '📧 Email: <a href="mailto:it@sifaster.com" style="color:#2563eb; text-decoration:none;">it@sifaster.com</a><br>' +
+                '🏢 Ruangan: Lt. 2 (Server Room)' +
+                '</div>',
+            showCloseButton: true,
+            showCancelButton: false,
+            focusConfirm: false,
+            confirmButtonText: '<i class="fa fa-thumbs-up"></i> Mengerti',
+            confirmButtonAriaLabel: 'Thumbs up, great!',
+            customClass: {
+                confirmButton: 'btn-login-full' // Menggunakan style tombol login
+            }
+        });
+    }
+  </script>
 
 </body>
 </html>
